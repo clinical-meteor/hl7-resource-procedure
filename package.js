@@ -1,6 +1,6 @@
 Package.describe({
   name: 'clinical:hl7-resource-procedure',
-  version: '1.3.2',
+  version: '1.3.3',
   summary: 'HL7 FHIR Resource - Procedure',
   git: 'https://github.com/clinical-meteor/hl7-resource-procedure',
   documentation: 'README.md'
