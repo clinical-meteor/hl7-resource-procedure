@@ -22,11 +22,7 @@ export {
   DynamicRoutes, 
 
   ProceduresPage,
-  ProceduresTable,
-
-  Procedure,
-  Procedures,
-  ProcedureSchema
+  ProceduresTable
 };
 
 
