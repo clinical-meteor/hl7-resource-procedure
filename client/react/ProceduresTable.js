@@ -110,7 +110,7 @@ export default class ProceduresTable extends React.Component {
     }
 
     return(
-      <Table id='proceduresTable' responses hover >
+      <Table id='proceduresTable' hover >
         <thead>
           <tr>
             { this.renderTogglesHeader(this.data.displayToggle) }
