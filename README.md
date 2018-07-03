@@ -1,4 +1,4 @@
-##clinical:hl7-resource-procedure
+## clinical:hl7-resource-procedure
 
 #### Licensing  
 ![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)
