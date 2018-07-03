@@ -9,7 +9,7 @@
 
 
 #### API Reference  
-The resource in this package implements Practitioner resource schema, specified at [https://www.hl7.org/fhir/procedure.html](https://www.hl7.org/fhir/procedure.html). 
+The resource in this package implements Practitioner resource schema, specified at [https://www.hl7.org/fhir/DSTU2/procedure.html](https://www.hl7.org/fhir/DSTU2/procedure.html). 
 
 
 #### Installation  
