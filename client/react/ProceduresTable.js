@@ -5,6 +5,7 @@ import { ReactMeteorData } from 'meteor/react-meteor-data';
 import ReactMixin from 'react-mixin';
 import { Table } from 'react-bootstrap';
 import Toggle from 'material-ui/Toggle';
+import { get } from 'lodash';
 
 export default class ProceduresTable extends React.Component {
 
@@ -62,20 +63,24 @@ export default class ProceduresTable extends React.Component {
   renderDateHeader(displayDates){
     if (displayDates) {
       return (
-        <th className='date'>date</th>
+        <th className='performedDate'>Date</th>
+        // <th className='performedTime'>Time</th>
       );
     }
   }
-  renderDate(displayDates, newDate ){
+  renderDate(displayDates, performedDate, performedTime ){
     if (displayDates) {
       return (
-        <td className='date'>{ moment(newDate).format('YYYY-MM-DD') }</td>
+        // <td className='date'>{ moment(performedDate).format('YYYY-MM-DD') }</td>
+        // <td className='time'>{ moment(newDate).format('YYYY-MM-DD') }</td>
+        <td className='date'>{ performedDate }</td>
+        // <td className='time'>{ performedTime }</td>
       );
     }
   }
   rowClick(id){
     Session.set('proceduresUpsert', false);
-    Session.set('selectedProcedure', id);
+    Session.set('selectedProcedureId', id);
     Session.set('procedurePageTabIndex', 2);
   };
   render () {
@@ -86,25 +91,36 @@ export default class ProceduresTable extends React.Component {
         status: '',
         code: ''        
       };
-      if (this.data.procedures[i]){
-        if(this.data.procedures[i].identifier){
-          newRow.identifier = this.data.procedures[i].identifier[0].value;
-        }
-        if(this.data.procedures[i].code && this.data.procedures[i].code.text){
-          newRow.code = this.data.procedures[i].code.text;
-        }     
-        if(this.data.procedures[i].status){
-          newRow.status = this.data.procedures[i].status;
-        }
-      }
+      newRow.identifier = get(this.data.procedures[i], 'identifier[0].value');
+      newRow.categoryDisplay = get(this.data.procedures[i], 'category.coding[0].display')    
+      newRow.procedureCode = get(this.data.procedures[i], 'code.coding[0].code');
+      newRow.procedureCodeDisplay = get(this.data.procedures[i], 'code.coding[0].display');
+      newRow.performedDate = get(this.data.procedures[i], 'performedDate');
+      newRow.performedTime = get(this.data.procedures[i], 'performedTime');
+      newRow.subjectDisplay = get(this.data.procedures[i], 'subject.display');
+      newRow.subjectReference = get(this.data.procedures[i], 'subject.reference');
+      newRow.performerDisplay = get(this.data.procedures[i], 'performer.display');
+      newRow.performerReference = get(this.data.procedures[i], 'performer.reference');
+      newRow.bodySiteDisplay = get(this.data.procedures[i], 'bodySite.display');
 
+      let notes = get(this.data.procedures[i], 'notes')
+      newRow.notesCount = notes.length;
+
+      console.log('newRow', newRow)
+
+      
       tableRows.push(
         <tr key={i} className="procedureRow" style={{cursor: "pointer"}} onClick={ this.rowClick.bind('this', this.data.procedures[i]._id)} >
           { this.renderToggles(this.data.displayToggle, this.data.procedures[i]) }
           <td className='identifier'>{ newRow.identifier }</td>
-          <td className='code'>{ newRow.code }</td>
-          <td className='status'>{ newRow.status }</td>
-          { this.renderDate(this.data.displayDates, this.data.procedures[i].performedDateTime) }
+          <td className='categoryDisplay'>{ newRow.categoryDisplay }</td>
+          <td className='procedureCodeDisplay'>{ newRow.procedureCodeDisplay }</td>
+          <td className='procedureCode'>{ newRow.procedureCode }</td>
+          <td className='subjectDisplay'>{ newRow.subjectDisplay }</td>
+          <td className='performerDisplay'>{ newRow.performerDisplay }</td>
+          <td className='bodySiteDisplay'>{ newRow.bodySiteDisplay }</td>
+          { this.renderDate(this.data.displayDates, newRow.performedDate, newRow.performedTime) }
+          <td className='notesCount'>{ newRow.notesCount }</td>
         </tr>
       )
     }
@@ -114,10 +130,16 @@ export default class ProceduresTable extends React.Component {
         <thead>
           <tr>
             { this.renderTogglesHeader(this.data.displayToggle) }
-            <th className='identifier'>identifier</th>
-            <th className='code'>code</th>
-            <th className='status'>status</th>
+            <th className='identifier'>Identifier</th>
+            <th className='categoryDisplay'>Category</th>
+            <th className='procedureCodeDisplay'>Procedure</th>
+            <th className='procedureCode'>Code</th>
+            <th className='subjectDisplay'>Subject</th>
+            <th className='performerDisplay'>Performer</th>
+            <th className='bodySiteDisplay'>Body Site</th>
+
             { this.renderDateHeader(this.data.displayDates) }
+            <th className='notesCount'>Notes</th>
           </tr>
         </thead>
         <tbody>
