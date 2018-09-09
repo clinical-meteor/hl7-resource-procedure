@@ -72,7 +72,9 @@ export class ProceduresPage extends React.Component {
                 />
                </Tab>
                <Tab className="procedureListTab" label='Procedures' onActive={this.handleActive} style={this.data.style.tab} value={1}>
-                <ProceduresTable displayDates={true} />
+                <ProceduresTable 
+                  noDataMessagePadding={100}
+                  displayDates={true} />
                </Tab>
                <Tab className="procedureDetailsTab" label='Detail' onActive={this.handleActive} style={this.data.style.tab} value={2}>
                  <ProcedureDetail 
