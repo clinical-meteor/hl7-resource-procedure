@@ -598,12 +598,8 @@ export class ProcedureDetail extends React.Component {
       // not sure why we're having to respecify this; fix for a bug elsewhere
       fhirProcedureData.resourceType = 'Procedure';
 
-      Procedures.update(
-        {_id: this.state.procedureId}, {$set: fhirProcedureData }, {
-          validate: get(Meteor, 'settings.public.defaults.schemas.validate', false), 
-          filter: get(Meteor, 'settings.public.defaults.schemas.filter', false), 
-          removeEmptyStrings: false
-        }, function(error, result) {
+      Procedures._collection.update(
+        {_id: this.state.procedureId}, {$set: fhirProcedureData }, function(error, result) {
           if (error) {
             console.log("error", error);
 
@@ -621,11 +617,7 @@ export class ProcedureDetail extends React.Component {
 
       if(process.env.NODE_ENV === "test") console.log("create a new procedure", fhirProcedureData);
 
-      Procedures.insert(fhirProcedureData, {
-        validate: get(Meteor, 'settings.public.defaults.schemas.validate', false), 
-        filter: get(Meteor, 'settings.public.defaults.schemas.filter', false), 
-        removeEmptyStrings: false
-      }, function(error, result) {
+      Procedures._collection.insert(fhirProcedureData, function(error, result) {
         if (error) {
           console.log("error", error);
           Bert.alert(error.reason, 'danger');
