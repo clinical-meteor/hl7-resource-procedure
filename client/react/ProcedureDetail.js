@@ -600,8 +600,8 @@ export class ProcedureDetail extends React.Component {
 
       Procedures.update(
         {_id: this.state.procedureId}, {$set: fhirProcedureData }, {
-          validate: false, 
-          filter: false, 
+          validate: get(Meteor, 'settings.public.defaults.schemas.validate', false), 
+          filter: get(Meteor, 'settings.public.defaults.schemas.filter', false), 
           removeEmptyStrings: false
         }, function(error, result) {
           if (error) {
@@ -622,8 +622,8 @@ export class ProcedureDetail extends React.Component {
       if(process.env.NODE_ENV === "test") console.log("create a new procedure", fhirProcedureData);
 
       Procedures.insert(fhirProcedureData, {
-        validate: false, 
-        filter: false, 
+        validate: get(Meteor, 'settings.public.defaults.schemas.validate', false), 
+        filter: get(Meteor, 'settings.public.defaults.schemas.filter', false), 
         removeEmptyStrings: false
       }, function(error, result) {
         if (error) {
