@@ -639,7 +639,7 @@ export class ProcedureDetail extends React.Component {
 
   handleDeleteButton(){
     let self = this;
-    Procedures.remove({_id: this.state.procedureId}, function(error, result){
+    Procedures._collection.remove({_id: this.state.procedureId}, function(error, result){
       if (error) {
         Bert.alert(error.reason, 'danger');
       }
