@@ -104,7 +104,11 @@ export default class ProceduresTable extends React.Component {
       newRow.bodySiteDisplay = get(this.data.procedures[i], 'bodySite.display');
 
       let notes = get(this.data.procedures[i], 'notes')
-      newRow.notesCount = notes.length;
+      if(notes && notes.length){
+        newRow.notesCount = notes.length;
+      } else {
+        newRow.notesCount = 0;
+      }
 
       console.log('newRow', newRow)
 
