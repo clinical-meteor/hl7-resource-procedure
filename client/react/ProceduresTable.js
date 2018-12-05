@@ -40,7 +40,16 @@ export default class ProceduresTable extends React.Component {
     if(process.env.NODE_ENV === "test") console.log("ProceduresTable[data]", data);
     return data;
   };
-
+  displayOnMobile(width){
+    let style = {};
+    if(['iPhone'].includes(window.navigator.platform)){
+      style.display = "none";
+    }
+    if(width){
+      style.width = width;
+    }
+    return style;
+  }
   renderTogglesHeader(displayToggle){
     if (displayToggle) {
       return (
@@ -116,13 +125,13 @@ export default class ProceduresTable extends React.Component {
       tableRows.push(
         <tr key={i} className="procedureRow" style={{cursor: "pointer"}} onClick={ this.rowClick.bind('this', this.data.procedures[i]._id)} >
           { this.renderToggles(this.data.displayToggle, this.data.procedures[i]) }
-          <td className='identifier'>{ newRow.identifier }</td>
+          <td className='identifier' style={this.displayOnMobile()} >{ newRow.identifier }</td>
           <td className='categoryDisplay'>{ newRow.categoryDisplay }</td>
           <td className='procedureCodeDisplay'>{ newRow.procedureCodeDisplay }</td>
           <td className='procedureCode'>{ newRow.procedureCode }</td>
-          <td className='subjectDisplay'>{ newRow.subjectDisplay }</td>
-          <td className='performerDisplay'>{ newRow.performerDisplay }</td>
-          <td className='bodySiteDisplay'>{ newRow.bodySiteDisplay }</td>
+          <td className='subjectDisplay' style={this.displayOnMobile()} >{ newRow.subjectDisplay }</td>
+          <td className='performerDisplay' style={this.displayOnMobile()} >{ newRow.performerDisplay }</td>
+          <td className='bodySiteDisplay' style={this.displayOnMobile()} >{ newRow.bodySiteDisplay }</td>
           { this.renderDate(this.data.displayDates, newRow.performedDate, newRow.performedTime) }
           <td className='notesCount'>{ newRow.notesCount }</td>
         </tr>
@@ -134,13 +143,13 @@ export default class ProceduresTable extends React.Component {
         <thead>
           <tr>
             { this.renderTogglesHeader(this.data.displayToggle) }
-            <th className='identifier'>Identifier</th>
+            <th className='identifier' style={this.displayOnMobile()} >Identifier</th>
             <th className='categoryDisplay'>Category</th>
             <th className='procedureCodeDisplay'>Procedure</th>
             <th className='procedureCode'>Code</th>
-            <th className='subjectDisplay'>Subject</th>
-            <th className='performerDisplay'>Performer</th>
-            <th className='bodySiteDisplay'>Body Site</th>
+            <th className='subjectDisplay' style={this.displayOnMobile()} >Subject</th>
+            <th className='performerDisplay' style={this.displayOnMobile()} >Performer</th>
+            <th className='bodySiteDisplay' style={this.displayOnMobile()} >Body Site</th>
 
             { this.renderDateHeader(this.data.displayDates) }
             <th className='notesCount'>Notes</th>
