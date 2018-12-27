@@ -158,19 +158,21 @@ export class ProcedureDetail extends React.Component {
   }
   getMeteorData() {
     let data = {
-      procedureId: this.state.procedureId,
+      procedureId: this.props.procedureId,
       procedure: false,
       showDatePicker: false
     };
 
     if(this.props.showDatePicker){
-      data.showDatePicker = this.props.showDatePicker
+      data.showDatePicker = this.props.showDatePicker;
     }
 
     if(this.props.procedure){
       data.procedure = this.props.procedure;
+      data.form = this.dehydrateFhirResource(this.props.procedure);
     }  
 
+    console.log('ProcedureDetail[data]', data);
     return data;
   }
 
@@ -188,10 +190,16 @@ export class ProcedureDetail extends React.Component {
       );
     }
   }
-
+  setHint(text){
+    if(this.props.showHints !== false){
+      return text;
+    } else {
+      return '';
+    }
+  }
   render() {
     if(process.env.NODE_ENV === "test") console.log('ProcedureDetail.render()', this.state)
-    let formData = this.state.form;
+    let formData = this.data.form;
 
     return (
       <div id={this.props.id} className="procedureDetail">
@@ -205,7 +213,7 @@ export class ProcedureDetail extends React.Component {
                 floatingLabelText='Identifier'
                 value={  get(formData, 'identifier') }
                 onChange={ this.changeState.bind(this, 'identifier')}
-                hintText='IR-28376481'
+                hintText={this.setHint('IR-28376481')}
                 floatingLabelFixed={true}
                 fullWidth
                 /><br/>
@@ -220,7 +228,7 @@ export class ProcedureDetail extends React.Component {
                 floatingLabelText='Procedure Category'
                 value={  get(formData, 'categoryDisplay') }
                 onChange={ this.changeState.bind(this, 'categoryDisplay')}
-                hintText='Interventional Radiology'
+                hintText={this.setHint('Interventional Radiology')}
                 floatingLabelFixed={true}
                 fullWidth
                 /><br/>
@@ -233,7 +241,7 @@ export class ProcedureDetail extends React.Component {
                 floatingLabelText='Category Code'
                 value={  get(formData, 'categoryCode') }
                 onChange={ this.changeState.bind(this, 'categoryCode')}
-                hintText='240917005'
+                hintText={this.setHint('240917005')}
                 floatingLabelFixed={true}
                 fullWidth
                 /><br/>
@@ -246,7 +254,7 @@ export class ProcedureDetail extends React.Component {
                 floatingLabelText='Procedure'
                 value={  get(formData, 'procedureCodeDisplay') }
                 onChange={ this.changeState.bind(this, 'procedureCodeDisplay')}
-                hintText='Biliary drainage intervention'
+                hintText={this.setHint('Biliary drainage intervention')}
                 floatingLabelFixed={true}
                 fullWidth
                 /><br/>
@@ -259,7 +267,7 @@ export class ProcedureDetail extends React.Component {
                 floatingLabelText='Procedure Code'
                 value={  get(formData, 'procedureCode') }
                 onChange={ this.changeState.bind(this, 'procedureCode')}
-                hintText='277566006'
+                hintText={this.setHint('277566006')}
                 floatingLabelFixed={true}
                 fullWidth
                 /><br/>
@@ -274,7 +282,7 @@ export class ProcedureDetail extends React.Component {
                 floatingLabelText='Subject'
                 value={  get(formData, 'subjectDisplay') }
                 onChange={ this.changeState.bind(this, 'subjectDisplay')}
-                hintText='Jane Doe'
+                hintText={this.setHint('Jane Doe')}
                 floatingLabelFixed={true}
                 fullWidth
                 /><br/>
@@ -287,7 +295,7 @@ export class ProcedureDetail extends React.Component {
                 floatingLabelText='Subject Reference'
                 value={  get(formData, 'subjectReference') }
                 onChange={ this.changeState.bind(this, 'subjectReference')}
-                hintText='Patient/12345'
+                hintText={this.setHint('Patient/12345')}
                 floatingLabelFixed={true}
                 fullWidth
                 /><br/>
@@ -301,7 +309,7 @@ export class ProcedureDetail extends React.Component {
                 floatingLabelText='Body Site'
                 value={  get(formData, 'bodySiteDisplay') }
                 onChange={ this.changeState.bind(this, 'bodySiteDisplay')}
-                hintText='Billiary Ducts'
+                hintText={this.setHint('Billiary Ducts')}
                 floatingLabelFixed={true}
                 fullWidth
                 /><br/>
@@ -314,7 +322,7 @@ export class ProcedureDetail extends React.Component {
                 floatingLabelText='Body Site Reference'
                 value={  get(formData, 'bodySiteReference') }
                 onChange={ this.changeState.bind(this, 'bodySiteReference')}
-                hintText='BodySite/222244'
+                hintText={this.setHint('BodySite/222244')}
                 floatingLabelFixed={true}
                 fullWidth
                 /><br/>
@@ -331,7 +339,7 @@ export class ProcedureDetail extends React.Component {
                 value={  get(formData, 'performerDisplay') }
                 onChange={ this.changeState.bind(this, 'performerDisplay')}
                 floatingLabelFixed={true}
-                hintText='Chris Taub'
+                hintText={this.setHint('Chris Taub')}
                 fullWidth
                 /><br/>
             </Col>
@@ -343,7 +351,7 @@ export class ProcedureDetail extends React.Component {
                 floatingLabelText='Performer Reference'
                 value={  get(formData, 'performerReference') }
                 onChange={ this.changeState.bind(this, 'performerReference')}
-                hintText='Practitioner/77777'
+                hintText={this.setHint('Practitioner/77777')}
                 floatingLabelFixed={true}
                 fullWidth
                 /><br/>
@@ -409,7 +417,7 @@ export class ProcedureDetail extends React.Component {
                 value={  get(formData, 'noteText') }
                 onChange={ this.changeState.bind(this, 'noteText')}
                 floatingLabelFixed={true}
-                hintText='Routine follow-up.  No complications.'
+                hintText={this.setHint('Routine follow-up.  No complications.')}
                 multiLine={true}          
                 rows={5}
                 fullWidth
@@ -658,7 +666,13 @@ ProcedureDetail.propTypes = {
   id: PropTypes.string,
   fhirVersion: PropTypes.string,
   procedureId: PropTypes.oneOfType([PropTypes.string, PropTypes.bool]),
-  procedure: PropTypes.oneOfType([PropTypes.object, PropTypes.bool])
+  procedure: PropTypes.oneOfType([PropTypes.object, PropTypes.bool]),
+  showPatientInputs: PropTypes.bool,
+  showHints: PropTypes.bool,
+  onInsert: PropTypes.func,
+  onUpdate: PropTypes.func,
+  onRemove: PropTypes.func,
+  onCancel: PropTypes.func
 };
 ReactMixin(ProcedureDetail.prototype, ReactMeteorData);
 export default ProcedureDetail;

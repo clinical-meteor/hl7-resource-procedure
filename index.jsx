@@ -1,5 +1,6 @@
 
 
+import ProcedureDetail from './client/react/ProcedureDetail';
 import ProceduresPage from './client/react/ProceduresPage';
 import ProceduresTable from './client/react/ProceduresTable';
 import { Procedure, Procedures, ProcedureSchema } from './lib/Procedures';
@@ -22,7 +23,8 @@ export {
   DynamicRoutes, 
 
   ProceduresPage,
-  ProceduresTable
+  ProceduresTable,
+  ProcedureDetail
 };
 
 
