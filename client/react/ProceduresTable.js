@@ -1,13 +1,16 @@
-import { Card, CardActions, CardMedia, CardText, CardTitle } from 'material-ui/Card';
+import { Card, CardActions, CardMedia, CardText, CardTitle, Toggle } from 'material-ui';
 
 import React from 'react';
 import { ReactMeteorData } from 'meteor/react-meteor-data';
 import ReactMixin from 'react-mixin';
 import { Table } from 'react-bootstrap';
-import Toggle from 'material-ui/Toggle';
 import { get } from 'lodash';
+import { moment } from 'meteor/momentjs:moment';
+import PropTypes from 'prop-types';
 
-export default class ProceduresTable extends React.Component {
+import { FaTags, FaCode, FaPuzzlePiece, FaLock  } from 'react-icons/fa';
+
+export class ProceduresTable extends React.Component {
 
   getMeteorData() {
 
@@ -50,15 +53,15 @@ export default class ProceduresTable extends React.Component {
     }
     return style;
   }
-  renderTogglesHeader(displayToggle){
-    if (displayToggle) {
+  renderToggleHeader(){
+    if (!this.props.hideToggle) {
       return (
-        <th className="toggle">toggle</th>
+        <th className="toggle">Toggle</th>
       );
     }
   }
-  renderToggles(displayToggle, patientId ){
-    if (displayToggle) {
+  renderToggle(patientId ){
+    if (!this.props.hideToggle) {
       return (
         <td className="toggle">
             <Toggle
@@ -77,13 +80,126 @@ export default class ProceduresTable extends React.Component {
       );
     }
   }
-  renderDate(displayDates, performedDate, performedTime ){
-    if (displayDates) {
+  renderDate(performedDate, performedTime ){
+    if (!this.props.hideDates) {
       return (
         // <td className='date'>{ moment(performedDate).format('YYYY-MM-DD') }</td>
         // <td className='time'>{ moment(newDate).format('YYYY-MM-DD') }</td>
         <td className='date'>{ performedDate }</td>
         // <td className='time'>{ performedTime }</td>
+      );
+    }
+  }
+  renderIdentifierHeader(){
+    if (!this.props.hideIdentifier) {
+      return (
+        <th className='identifier'>Identifier</th>
+      );
+    }
+  }
+  renderIdentifier(identifier ){
+    if (!this.props.hideIdentifier) {
+      return (
+        <td className='identifier'>{ identifier }</td>
+      );
+    }
+  } 
+  renderActionIconsHeader(){
+    if (!this.props.hideActionIcons) {
+      return (
+        <th className='actionIcons'>Actions</th>
+      );
+    }
+  }
+  renderActionIcons( ){
+    if (!this.props.hideActionIcons) {
+      return (
+        <td className='actionIcons' style={{minWidth: '100px'}}>
+          <FaLock style={{marginLeft: '2px', marginRight: '2px'}} />
+          <FaTags style={{marginLeft: '2px', marginRight: '2px'}} />
+          <FaCode style={{marginLeft: '2px', marginRight: '2px'}} />
+          <FaPuzzlePiece style={{marginLeft: '2px', marginRight: '2px'}} />          
+        </td>
+      );
+    }
+  } 
+  renderCategoryHeader(){
+    if (!this.props.hideCategory) {
+      return (
+        <th className="category">Category</th>
+      );
+    }
+  }
+  renderCategory(category ){
+    if (!this.props.hideCategory) {
+      return (
+        <td className='category'>{ category }</td>       );
+    }
+  }
+  renderIdentifierHeader(){
+    if (!this.props.hideIdentifier) {
+      return (
+        <th className='identifier'>Identifier</th>
+      );
+    }
+  }
+  renderIdentifier(identifier ){
+    if (!this.props.hideIdentifier) {
+      return (
+        <td className='identifier'>{ identifier }</td>
+      );
+    }
+  } 
+  renderCategoryHeader(){
+    if (!this.props.hideCategory) {
+      return (
+        <th className="category">Category</th>
+      );
+    }
+  }
+  renderCategory(category ){
+    if (!this.props.hideCategory) {
+      return (
+        <td className='category'>{ category }</td>       );
+    }
+  }
+  renderPerformerHeader(){
+    if (!this.props.hideCategory) {
+      return (
+        <th className="category">Performer</th>
+      );
+    }
+  }
+  renderPerformer(bodysite ){
+    if (!this.props.hideCategory) {
+      return (
+        <td className='category'>{ bodysite }</td>       );
+    }
+  }
+  renderBodySiteHeader(){
+    if (!this.props.hideCategory) {
+      return (
+        <th className="category">Body Site</th>
+      );
+    }
+  }
+  renderBodySite(bodySite ){
+    if (!this.props.hideCategory) {
+      return (
+        <td className='category'>{ bodySite }</td>       );
+    }
+  }
+  renderSubjectHeader(){
+    if (!this.props.hideSubject) {
+      return (
+        <th className='patientDisplay'>patient</th>
+      );
+    }
+  }
+  renderSubject(subject ){
+    if (!this.props.hideSubject) {
+      return (
+        <td className='subject' style={{minWidth: '140px'}}>{ subject }</td>
       );
     }
   }
@@ -124,14 +240,19 @@ export default class ProceduresTable extends React.Component {
       
       tableRows.push(
         <tr key={i} className="procedureRow" style={{cursor: "pointer"}} onClick={ this.rowClick.bind('this', this.data.procedures[i]._id)} >
-          { this.renderToggles(this.data.displayToggle, this.data.procedures[i]) }
-          <td className='identifier' style={this.displayOnMobile()} >{ newRow.identifier }</td>
-          <td className='categoryDisplay'>{ newRow.categoryDisplay }</td>
+          { this.renderToggle() }
+          { this.renderActionIcons() }
+          { this.renderIdentifier(newRow.identifier ) }
+          { this.renderCategory(newRow.categoryDisplay) }
+          {/* <td className='categoryDisplay'>{ newRow.categoryDisplay }</td> */}
           <td className='procedureCodeDisplay'>{ newRow.procedureCodeDisplay }</td>
           <td className='procedureCode'>{ newRow.procedureCode }</td>
-          <td className='subjectDisplay' style={this.displayOnMobile()} >{ newRow.subjectDisplay }</td>
-          <td className='performerDisplay' style={this.displayOnMobile()} >{ newRow.performerDisplay }</td>
-          <td className='bodySiteDisplay' style={this.displayOnMobile()} >{ newRow.bodySiteDisplay }</td>
+          {/* <td className='subjectDisplay' style={this.displayOnMobile()} >{ newRow.subjectDisplay }</td> */}
+          {/* <td className='performerDisplay' style={this.displayOnMobile()} >{ newRow.performerDisplay }</td>
+          <td className='bodySiteDisplay' style={this.displayOnMobile()} >{ newRow.bodySiteDisplay }</td> */}
+          { this.renderSubject( newRow.subjectDisplay ) } 
+          { this.renderPerformer(newRow.performerDisplay) }
+          { this.renderBodySite(newRow.bodySiteDisplay) }
           { this.renderDate(this.data.displayDates, newRow.performedDate, newRow.performedTime) }
           <td className='notesCount'>{ newRow.notesCount }</td>
         </tr>
@@ -142,15 +263,20 @@ export default class ProceduresTable extends React.Component {
       <Table id='proceduresTable' hover >
         <thead>
           <tr>
-            { this.renderTogglesHeader(this.data.displayToggle) }
-            <th className='identifier' style={this.displayOnMobile()} >Identifier</th>
-            <th className='categoryDisplay'>Category</th>
+            { this.renderToggleHeader() }
+            { this.renderActionIconsHeader() }
+            { this.renderIdentifierHeader() }
+            { this.renderCategoryHeader() }
+            {/* <th className='categoryDisplay'>Category</th> */}
             <th className='procedureCodeDisplay'>Procedure</th>
             <th className='procedureCode'>Code</th>
-            <th className='subjectDisplay' style={this.displayOnMobile()} >Subject</th>
-            <th className='performerDisplay' style={this.displayOnMobile()} >Performer</th>
-            <th className='bodySiteDisplay' style={this.displayOnMobile()} >Body Site</th>
+            {/* <th className='subjectDisplay' style={this.displayOnMobile()} >Subject</th> */}
+            {/* <th className='performerDisplay' style={this.displayOnMobile()} >Performer</th>
+            <th className='bodySiteDisplay' style={this.displayOnMobile()} >Body Site</th> */}
 
+            { this.renderSubjectHeader() }
+            { this.renderPerformerHeader() }
+            { this.renderBodySiteHeader() }
             { this.renderDateHeader(this.data.displayDates) }
             <th className='notesCount'>Notes</th>
           </tr>
@@ -164,4 +290,17 @@ export default class ProceduresTable extends React.Component {
 }
 
 
+ProceduresTable.propTypes = {
+  data: PropTypes.array,
+  query: PropTypes.object,
+  paginationLimit: PropTypes.number,
+  hideIdentifier: PropTypes.bool,
+  hideToggle: PropTypes.bool,
+  hideActionIcons: PropTypes.bool,
+  hideSubject: PropTypes.bool,
+  hidePerformer: PropTypes.bool,
+  hideBodySite: PropTypes.bool,
+  enteredInError: PropTypes.bool
+};
 ReactMixin(ProceduresTable.prototype, ReactMeteorData);
+export default ProceduresTable;
