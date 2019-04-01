@@ -126,14 +126,14 @@ export class ProceduresTable extends React.Component {
   renderCategoryHeader(){
     if (!this.props.hideCategory) {
       return (
-        <th className="category">Category</th>
+        <th className="categoryDisplay">Category</th>
       );
     }
   }
   renderCategory(category ){
     if (!this.props.hideCategory) {
       return (
-        <td className='category'>{ category }</td>       );
+        <td className='categoryDisplay'>{ category }</td>       );
     }
   }
   renderIdentifierHeader(){
@@ -153,53 +153,53 @@ export class ProceduresTable extends React.Component {
   renderCategoryHeader(){
     if (!this.props.hideCategory) {
       return (
-        <th className="category">Category</th>
+        <th className="categoryDisplay">Category</th>
       );
     }
   }
   renderCategory(category ){
     if (!this.props.hideCategory) {
       return (
-        <td className='category'>{ category }</td>       );
+        <td className='categoryDisplay'>{ category }</td>       );
     }
   }
   renderPerformerHeader(){
     if (!this.props.hideCategory) {
       return (
-        <th className="category">Performer</th>
+        <th className="performerDisplay">Performer</th>
       );
     }
   }
   renderPerformer(bodysite ){
     if (!this.props.hideCategory) {
       return (
-        <td className='category'>{ bodysite }</td>       );
+        <td className='performerDisplay'>{ bodysite }</td>       );
     }
   }
   renderBodySiteHeader(){
     if (!this.props.hideCategory) {
       return (
-        <th className="category">Body Site</th>
+        <th className="bodySiteDisplay">Body Site</th>
       );
     }
   }
   renderBodySite(bodySite ){
     if (!this.props.hideCategory) {
       return (
-        <td className='category'>{ bodySite }</td>       );
+        <td className='bodySiteDisplay'>{ bodySite }</td>       );
     }
   }
   renderSubjectHeader(){
     if (!this.props.hideSubject) {
       return (
-        <th className='patientDisplay'>patient</th>
+        <th className='subjectDisplay'>patient</th>
       );
     }
   }
   renderSubject(subject ){
     if (!this.props.hideSubject) {
       return (
-        <td className='subject' style={{minWidth: '140px'}}>{ subject }</td>
+        <td className='subjectDisplay' style={{minWidth: '140px'}}>{ subject }</td>
       );
     }
   }
