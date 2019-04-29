@@ -9,6 +9,7 @@ import { moment } from 'meteor/momentjs:moment';
 import PropTypes from 'prop-types';
 
 import { FaTags, FaCode, FaPuzzlePiece, FaLock  } from 'react-icons/fa';
+import { GoTrashcan } from 'react-icons/go'
 
 export class ProceduresTable extends React.Component {
 
@@ -56,7 +57,7 @@ export class ProceduresTable extends React.Component {
   renderToggleHeader(){
     if (!this.props.hideToggle) {
       return (
-        <th className="toggle">Toggle</th>
+        <th className="toggle" style={{width: '60px'}} >Toggle</th>
       );
     }
   }
@@ -111,14 +112,32 @@ export class ProceduresTable extends React.Component {
       );
     }
   }
-  renderActionIcons( ){
+  removeRecord(_id){
+    console.log('Remove procedure ', _id)
+    Procedures._collection.remove({_id: _id})
+  }
+  showSecurityDialog(procedure){
+    console.log('showSecurityDialog', procedure)
+
+    Session.set('securityDialogResourceJson', Procedures.findOne(get(procedure, '_id')));
+    Session.set('securityDialogResourceType', 'Procedure');
+    Session.set('securityDialogResourceId', get(procedure, '_id'));
+    Session.set('securityDialogOpen', true);
+  }
+  renderActionIcons( procedure ){
     if (!this.props.hideActionIcons) {
+
+      let iconStyle = {
+        marginLeft: '4px', 
+        marginRight: '4px', 
+        marginTop: '4px', 
+        fontSize: '120%'
+      }
+
       return (
-        <td className='actionIcons' style={{minWidth: '100px'}}>
-          <FaLock style={{marginLeft: '2px', marginRight: '2px'}} />
-          <FaTags style={{marginLeft: '2px', marginRight: '2px'}} />
-          <FaCode style={{marginLeft: '2px', marginRight: '2px'}} />
-          <FaPuzzlePiece style={{marginLeft: '2px', marginRight: '2px'}} />          
+        <td className='actionIcons' style={{minWidth: '120px'}}>
+          <FaTags style={iconStyle} onClick={this.showSecurityDialog.bind(this, procedure)} />
+          <GoTrashcan style={iconStyle} onClick={this.removeRecord.bind(this, procedure._id)} />  
         </td>
       );
     }
@@ -241,7 +260,7 @@ export class ProceduresTable extends React.Component {
       tableRows.push(
         <tr key={i} className="procedureRow" style={{cursor: "pointer"}} onClick={ this.rowClick.bind('this', this.data.procedures[i]._id)} >
           { this.renderToggle() }
-          { this.renderActionIcons() }
+          { this.renderActionIcons(this.data.procedures[i]) }
           { this.renderIdentifier(newRow.identifier ) }
           { this.renderCategory(newRow.categoryDisplay) }
           {/* <td className='categoryDisplay'>{ newRow.categoryDisplay }</td> */}
