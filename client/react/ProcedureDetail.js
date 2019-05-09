@@ -201,6 +201,40 @@ export class ProcedureDetail extends React.Component {
     if(process.env.NODE_ENV === "test") console.log('ProcedureDetail.render()', this.state)
     let formData = this.data.form;
 
+    let link;
+    let notes;
+    
+    if(!this.state.procedureId){
+      link = <a href='http://browser.ihtsdotools.org/?perspective=full&conceptId1=404684003&edition=us-edition&release=v20180301&server=https://prod-browser-exten.ihtsdotools.org/api/snomed&langRefset=900000000000509007'>Lookup codes with the SNOMED CT Browser</a>
+    } 
+    
+    // this is a proof-of-concept feature for evidence based medicine lookup
+    // needs to be refactored out eventually
+    if(get(formData, 'procedureCode') === "74160"){
+      link = <a href='https://www.healthdecision.org/tool#/tool/lungca'>Lung Cancer - Clinical Decision Support Tools</a>
+    }
+
+    if(get(formData, 'noteText')){
+      notes = <Row>
+            <Col md={12}>
+              <TextField
+                id='noteTextInput'
+                ref='noteText'
+                name='noteText'
+                floatingLabelText='Note Text'
+                value={  get(formData, 'noteText') }
+                onChange={ this.changeState.bind(this, 'noteText')}
+                floatingLabelFixed={true}
+                hintText={this.setHint('Routine follow-up.  No complications.')}
+                multiLine={true}          
+                rows={5}
+                fullWidth
+                /><br/>  
+            </Col>
+          </Row>
+
+    }
+
     return (
       <div id={this.props.id} className="procedureDetail">
         <CardText>
@@ -407,28 +441,11 @@ export class ProcedureDetail extends React.Component {
                 /><br/>
             </Col>
           </Row>
-          <Row>
-            <Col md={12}>
-              <TextField
-                id='noteTextInput'
-                ref='noteText'
-                name='noteText'
-                floatingLabelText='Subject Reference'
-                value={  get(formData, 'noteText') }
-                onChange={ this.changeState.bind(this, 'noteText')}
-                floatingLabelFixed={true}
-                hintText={this.setHint('Routine follow-up.  No complications.')}
-                multiLine={true}          
-                rows={5}
-                fullWidth
-                /><br/>  
-            </Col>
-          </Row>
 
+          { notes } 
+          { link }
 
-          <a href='http://browser.ihtsdotools.org/?perspective=full&conceptId1=404684003&edition=us-edition&release=v20180301&server=https://prod-browser-exten.ihtsdotools.org/api/snomed&langRefset=900000000000509007'>Lookup codes with the SNOMED CT Browser</a>
-
-            <br/>
+          <br/>
           { this.renderDatePicker(this.data.showDatePicker, get(this, 'data.procedure.performedDateTime') ) }
           <br/>
 
@@ -443,17 +460,19 @@ export class ProcedureDetail extends React.Component {
 
  
   determineButtons(procedureId){
-    if (procedureId) {
-      return (
-        <div>
-          <RaisedButton id="updateProcedureButton" label="Save" primary={true} onClick={this.handleSaveButton.bind(this)} style={{marginRight: '20px'}}  />
-          <RaisedButton id="deleteProcedureButton" label="Delete" onClick={this.handleDeleteButton.bind(this)} />
-        </div>
-      );
-    } else {
-      return(
-        <RaisedButton id="saveProcedureButton" label="Save" primary={true} onClick={this.handleSaveButton.bind(this)} />
-      );
+    if(!this.props.hideButtons){
+      if (procedureId) {
+        return (
+          <div>
+            <RaisedButton id="updateProcedureButton" label="Save" primary={true} onClick={this.handleSaveButton.bind(this)} style={{marginRight: '20px'}}  />
+            <RaisedButton id="deleteProcedureButton" label="Delete" onClick={this.handleDeleteButton.bind(this)} />
+          </div>
+        );
+      } else {
+        return(
+          <RaisedButton id="saveProcedureButton" label="Save" primary={true} onClick={this.handleSaveButton.bind(this)} />
+        );
+      }
     }
   }
 
@@ -668,6 +687,7 @@ ProcedureDetail.propTypes = {
   procedureId: PropTypes.oneOfType([PropTypes.string, PropTypes.bool]),
   procedure: PropTypes.oneOfType([PropTypes.object, PropTypes.bool]),
   showPatientInputs: PropTypes.bool,
+  hideButtons: PropTypes.bool,
   showHints: PropTypes.bool,
   onInsert: PropTypes.func,
   onUpdate: PropTypes.func,
