@@ -211,7 +211,7 @@ export class ProcedureDetail extends React.Component {
     // this is a proof-of-concept feature for evidence based medicine lookup
     // needs to be refactored out eventually
     if(get(formData, 'procedureCode') === "74160"){
-      link = <a href='https://www.healthdecision.org/tool#/tool/lungca'>Lung Cancer - Clinical Decision Support Tools</a>
+      link = <a href='https://www.healthdecision.org/tool#/tool/lungca' target="_blank">Lung Cancer - Clinical Decision Support Tools</a>
     }
 
     if(get(formData, 'noteText')){
