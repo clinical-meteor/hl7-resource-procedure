@@ -1,4 +1,4 @@
-import { Card, CardActions, CardMedia, CardText, CardTitle, Toggle } from 'material-ui';
+import { Card, CardActions, CardMedia, CardText, CardTitle, Checkbox } from 'material-ui';
 
 import React from 'react';
 import { ReactMeteorData } from 'meteor/react-meteor-data';
@@ -23,12 +23,12 @@ export class ProceduresTable extends React.Component {
       },
       selected: [],
       procedures: [],
-      displayToggle: false,
+      displayCheckbox: false,
       displayDates: false
     }
 
-    if(this.props.displayToggles){
-      data.displayToggle = this.props.displayToggles;
+    if(this.props.displayCheckboxs){
+      data.displayCheckbox = this.props.displayCheckboxs;
     }
     if(this.props.displayDates){
       data.displayDates = this.props.displayDates;
@@ -41,7 +41,7 @@ export class ProceduresTable extends React.Component {
       }  
     }
 
-    if(process.env.NODE_ENV === "test") console.log("ProceduresTable[data]", data);
+    // if(get(Meteor, 'settings.public.logging') === "debug") console.log("ProceduresTable[data]", data);
     return data;
   };
   displayOnMobile(width){
@@ -54,27 +54,27 @@ export class ProceduresTable extends React.Component {
     }
     return style;
   }
-  renderToggleHeader(){
-    if (!this.props.hideToggle) {
+  renderCheckboxHeader(){
+    if (!this.props.hideCheckboxes) {
       return (
-        <th className="toggle" style={{width: '60px'}} >Toggle</th>
+        <th className="toggle" style={{width: '60px'}} >Checkbox</th>
       );
     }
   }
-  renderToggle(patientId ){
-    if (!this.props.hideToggle) {
+  renderCheckbox(patientId ){
+    if (!this.props.hideCheckboxes) {
       return (
         <td className="toggle">
-            <Toggle
-              defaultToggled={true}
+            <Checkbox
+              defaultCheckbox={true}
               //style={styles.toggle}
             />
           </td>
       );
     }
   }
-  renderDateHeader(displayDates){
-    if (displayDates) {
+  renderDateHeader(){
+    if (!this.props.hidePerformedDate) {
       return (
         <th className='performedDate'>Date</th>
         // <th className='performedTime'>Time</th>
@@ -82,7 +82,7 @@ export class ProceduresTable extends React.Component {
     }
   }
   renderDate(performedDate, performedTime ){
-    if (!this.props.hideDates) {
+    if (!this.props.hidePerformedDate) {
       return (
         // <td className='date'>{ moment(performedDate).format('YYYY-MM-DD') }</td>
         // <td className='time'>{ moment(newDate).format('YYYY-MM-DD') }</td>
@@ -108,7 +108,7 @@ export class ProceduresTable extends React.Component {
   renderActionIconsHeader(){
     if (!this.props.hideActionIcons) {
       return (
-        <th className='actionIcons'>Actions</th>
+        <th className='actionIcons' style={{width: '100px'}}>Actions</th>
       );
     }
   }
@@ -239,7 +239,8 @@ export class ProceduresTable extends React.Component {
       newRow.categoryDisplay = get(this.data.procedures[i], 'category.coding[0].display')    
       newRow.procedureCode = get(this.data.procedures[i], 'code.coding[0].code');
       newRow.procedureCodeDisplay = get(this.data.procedures[i], 'code.coding[0].display');
-      newRow.performedDate = get(this.data.procedures[i], 'performedDate');
+
+      newRow.performedDate = get(this.data.procedures[i], 'performedDateTime');      
       newRow.performedTime = get(this.data.procedures[i], 'performedTime');
       newRow.subjectDisplay = get(this.data.procedures[i], 'subject.display');
       newRow.subjectReference = get(this.data.procedures[i], 'subject.reference');
@@ -254,12 +255,12 @@ export class ProceduresTable extends React.Component {
         newRow.notesCount = 0;
       }
 
-      console.log('newRow', newRow)
+      // console.log('newRow', newRow)
 
       
       tableRows.push(
         <tr key={i} className="procedureRow" style={{cursor: "pointer"}} onClick={ this.rowClick.bind('this', this.data.procedures[i]._id)} >
-          { this.renderToggle() }
+          { this.renderCheckbox() }
           { this.renderActionIcons(this.data.procedures[i]) }
           { this.renderIdentifier(newRow.identifier ) }
           { this.renderCategory(newRow.categoryDisplay) }
@@ -272,7 +273,7 @@ export class ProceduresTable extends React.Component {
           { this.renderSubject( newRow.subjectDisplay ) } 
           { this.renderPerformer(newRow.performerDisplay) }
           { this.renderBodySite(newRow.bodySiteDisplay) }
-          { this.renderDate(this.data.displayDates, newRow.performedDate, newRow.performedTime) }
+          { this.renderDate(newRow.performedDate, newRow.performedTime) }
           <td className='notesCount'>{ newRow.notesCount }</td>
         </tr>
       )
@@ -282,7 +283,7 @@ export class ProceduresTable extends React.Component {
       <Table id='proceduresTable' hover >
         <thead>
           <tr>
-            { this.renderToggleHeader() }
+            { this.renderCheckboxHeader() }
             { this.renderActionIconsHeader() }
             { this.renderIdentifierHeader() }
             { this.renderCategoryHeader() }
@@ -313,8 +314,9 @@ ProceduresTable.propTypes = {
   data: PropTypes.array,
   query: PropTypes.object,
   paginationLimit: PropTypes.number,
+  hidePerformedDate: PropTypes.bool,
   hideIdentifier: PropTypes.bool,
-  hideToggle: PropTypes.bool,
+  hideCheckboxes: PropTypes.bool,
   hideActionIcons: PropTypes.bool,
   hideSubject: PropTypes.bool,
   hidePerformer: PropTypes.bool,
