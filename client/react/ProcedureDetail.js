@@ -100,6 +100,7 @@ export class ProcedureDetail extends React.Component {
         procedureCodeDisplay: '',
         bodySiteDisplay: '',
         bodySiteReference: '',
+        performedDateTime: '',
         performedDate: null,
         performedTime: null,
         notPerformed: false,
@@ -122,6 +123,7 @@ export class ProcedureDetail extends React.Component {
     formData.procedureCodeDisplay = get(procedure, 'code.coding[0].display')
     formData.bodySiteDisplay = get(procedure, 'bodySite.display')
     formData.bodySiteReference = get(procedure, 'bodySite.reference')
+    formData.performedDateTime = get(procedure, 'performedDateTime')
     formData.performedDate = get(procedure, 'performedDate')
     formData.performedTime = get(procedure, 'performedTime')
     formData.notPerformed = get(procedure, 'notPerformed')
@@ -138,21 +140,38 @@ export class ProcedureDetail extends React.Component {
     process.env.NODE_ENV === "test" && console.log('ProcedureDetail.shouldComponentUpdate()', nextProps, this.state)
     let shouldUpdate = true;
 
-    // both false; don't take any more updates
-    if(nextProps.procedure === this.state.procedure){
-      shouldUpdate = false;
-    }
-
     // received an procedure from the table; okay lets update again
     if(nextProps.procedureId !== this.state.procedureId){
-      this.setState({procedureId: nextProps.procedureId})
       
       if(nextProps.procedure){
         this.setState({procedure: nextProps.procedure})     
         this.setState({form: this.dehydrateFhirResource(nextProps.procedure)})       
       }
+
+      this.setState({procedureId: nextProps.procedureId})
       shouldUpdate = true;
     }
+
+    // both false; don't take any more updates
+    if(nextProps.procedure === this.state.procedure){
+      shouldUpdate = false;
+    }
+
+    // // both false; don't take any more updates
+    // if(nextProps.procedure === this.state.procedure){
+    //   shouldUpdate = false;
+    // }
+
+    // // received an procedure from the table; okay lets update again
+    // if(nextProps.procedureId !== this.state.procedureId){
+    //   this.setState({procedureId: nextProps.procedureId})
+      
+    //   if(nextProps.procedure){
+    //     this.setState({procedure: nextProps.procedure})     
+    //     this.setState({form: this.dehydrateFhirResource(nextProps.procedure)})       
+    //   }
+    //   shouldUpdate = true;
+    // }
  
     return shouldUpdate;
   }
@@ -160,7 +179,8 @@ export class ProcedureDetail extends React.Component {
     let data = {
       procedureId: this.props.procedureId,
       procedure: false,
-      showDatePicker: false
+      showDatePicker: false,
+      form: this.state.form
     };
 
     if(this.props.showDatePicker){
@@ -176,7 +196,19 @@ export class ProcedureDetail extends React.Component {
     return data;
   }
 
-  renderDatePicker(showDatePicker, datePickerValue){
+  renderDatePicker(showDatePicker, form){
+    let datePickerValue;
+
+    if(get(form, 'performedDateTime')){
+      datePickerValue = get(form, 'performedDateTime');
+    }
+    if(get(form, 'performedPeriod.start')){
+      datePickerValue = get(form, 'performedPeriod.start');
+    }
+    if (typeof datePickerValue === "string"){
+      datePickerValue = new Date(datePickerValue);
+    }
+
     if (showDatePicker) {
       return (
         <DatePicker 
@@ -199,7 +231,6 @@ export class ProcedureDetail extends React.Component {
   }
   render() {
     if(process.env.NODE_ENV === "test") console.log('ProcedureDetail.render()', this.state)
-    let formData = this.data.form;
 
     let link;
     let notes;
@@ -210,28 +241,27 @@ export class ProcedureDetail extends React.Component {
     
     // this is a proof-of-concept feature for evidence based medicine lookup
     // needs to be refactored out eventually
-    if(get(formData, 'procedureCode') === "74160"){
+    if(get(this, 'data.form.procedureCode') === "74160"){
       link = <a href='https://www.healthdecision.org/tool#/tool/lungca' target="_blank">Lung Cancer - Clinical Decision Support Tools</a>
     }
 
-    if(get(formData, 'noteText')){
+    if(get(this, 'data.form.noteText')){
       notes = <Row>
-            <Col md={12}>
-              <TextField
-                id='noteTextInput'
-                ref='noteText'
-                name='noteText'
-                floatingLabelText='Note Text'
-                value={  get(formData, 'noteText') }
-                onChange={ this.changeState.bind(this, 'noteText')}
-                floatingLabelFixed={true}
-                hintText={this.setHint('Routine follow-up.  No complications.')}
-                multiLine={true}          
-                rows={5}
-                fullWidth
-                /><br/>  
-            </Col>
-          </Row>
+        <Col md={12}>
+          <TextField
+            id='noteTextInput'                
+            name='noteText'
+            floatingLabelText='Note Text'
+            value={  get(this, 'data.form.noteText', '') }
+            onChange={ this.changeState.bind(this, 'noteText')}
+            floatingLabelFixed={true}
+            hintText={this.setHint('Routine follow-up.  No complications.')}
+            multiLine={true}          
+            rows={5}
+            fullWidth
+            /><br/>  
+        </Col>
+      </Row>
 
     }
 
@@ -241,11 +271,10 @@ export class ProcedureDetail extends React.Component {
           <Row>
             <Col md={4}>
               <TextField
-                id='identifierInput'
-                ref='identifier'
+                id='identifierInput'                
                 name='identifier'
                 floatingLabelText='Identifier'
-                value={  get(formData, 'identifier') }
+                value={  get(this, 'data.form.identifier') }
                 onChange={ this.changeState.bind(this, 'identifier')}
                 hintText={this.setHint('IR-28376481')}
                 floatingLabelFixed={true}
@@ -256,11 +285,10 @@ export class ProcedureDetail extends React.Component {
           <Row>
             <Col md={4}>
               <TextField
-                id='categoryDisplayInput'
-                ref='categoryDisplay'
+                id='categoryDisplayInput'                
                 name='categoryDisplay'
                 floatingLabelText='Procedure Category'
-                value={  get(formData, 'categoryDisplay') }
+                value={  get(this, 'data.form.categoryDisplay') }
                 onChange={ this.changeState.bind(this, 'categoryDisplay')}
                 hintText={this.setHint('Interventional Radiology')}
                 floatingLabelFixed={true}
@@ -269,11 +297,10 @@ export class ProcedureDetail extends React.Component {
             </Col>
             <Col md={2}>
               <TextField
-                id='categoryCodeInput'
-                ref='categoryCode'
+                id='categoryCodeInput'                
                 name='categoryCode'
                 floatingLabelText='Category Code'
-                value={  get(formData, 'categoryCode') }
+                value={  get(this, 'data.form.categoryCode') }
                 onChange={ this.changeState.bind(this, 'categoryCode')}
                 hintText={this.setHint('240917005')}
                 floatingLabelFixed={true}
@@ -282,11 +309,10 @@ export class ProcedureDetail extends React.Component {
             </Col>
             <Col md={4}>
               <TextField
-                id='procedureCodeDisplayInput'
-                ref='procedureCodeDisplay'
+                id='procedureCodeDisplayInput'                
                 name='procedureCodeDisplay'
                 floatingLabelText='Procedure'
-                value={  get(formData, 'procedureCodeDisplay') }
+                value={  get(this, 'data.form.procedureCodeDisplay') }
                 onChange={ this.changeState.bind(this, 'procedureCodeDisplay')}
                 hintText={this.setHint('Biliary drainage intervention')}
                 floatingLabelFixed={true}
@@ -295,11 +321,10 @@ export class ProcedureDetail extends React.Component {
             </Col>
             <Col md={2}>
               <TextField
-                id='procedureCodeInput'
-                ref='procedureCode'
+                id='procedureCodeInput'                
                 name='procedureCode'
                 floatingLabelText='Procedure Code'
-                value={  get(formData, 'procedureCode') }
+                value={  get(this, 'data.form.procedureCode') }
                 onChange={ this.changeState.bind(this, 'procedureCode')}
                 hintText={this.setHint('277566006')}
                 floatingLabelFixed={true}
@@ -310,11 +335,10 @@ export class ProcedureDetail extends React.Component {
           <Row>
             <Col md={4}>
               <TextField
-                id='subjectDisplayInput'
-                ref='subjectDisplay'
+                id='subjectDisplayInput'                
                 name='subjectDisplay'
                 floatingLabelText='Subject'
-                value={  get(formData, 'subjectDisplay') }
+                value={  get(this, 'data.form.subjectDisplay') }
                 onChange={ this.changeState.bind(this, 'subjectDisplay')}
                 hintText={this.setHint('Jane Doe')}
                 floatingLabelFixed={true}
@@ -323,11 +347,10 @@ export class ProcedureDetail extends React.Component {
             </Col>
             <Col md={2}>
               <TextField
-                id='subjectReferenceInput'
-                ref='subjectReference'
+                id='subjectReferenceInput'                
                 name='subjectReference'
                 floatingLabelText='Subject Reference'
-                value={  get(formData, 'subjectReference') }
+                value={  get(this, 'data.form.subjectReference') }
                 onChange={ this.changeState.bind(this, 'subjectReference')}
                 hintText={this.setHint('Patient/12345')}
                 floatingLabelFixed={true}
@@ -337,11 +360,10 @@ export class ProcedureDetail extends React.Component {
 
             <Col md={4}>
               <TextField
-                id='bodySiteDisplayInput'
-                ref='bodySiteDisplay'
+                id='bodySiteDisplayInput'                
                 name='bodySiteDisplay'
                 floatingLabelText='Body Site'
-                value={  get(formData, 'bodySiteDisplay') }
+                value={  get(this, 'data.form.bodySiteDisplay') }
                 onChange={ this.changeState.bind(this, 'bodySiteDisplay')}
                 hintText={this.setHint('Billiary Ducts')}
                 floatingLabelFixed={true}
@@ -350,11 +372,10 @@ export class ProcedureDetail extends React.Component {
             </Col>
             <Col md={2}>
               <TextField
-                id='bodySiteReferenceInput'
-                ref='bodySiteReference'
+                id='bodySiteReferenceInput'                
                 name='bodySiteReference'
                 floatingLabelText='Body Site Reference'
-                value={  get(formData, 'bodySiteReference') }
+                value={  get(this, 'data.form.bodySiteReference') }
                 onChange={ this.changeState.bind(this, 'bodySiteReference')}
                 hintText={this.setHint('BodySite/222244')}
                 floatingLabelFixed={true}
@@ -366,11 +387,10 @@ export class ProcedureDetail extends React.Component {
           <Row>
             <Col md={4}>
               <TextField
-                id='performerDisplayInput'
-                ref='performerDisplay'
+                id='performerDisplayInput'                
                 name='performerDisplay'
                 floatingLabelText='Performed By'
-                value={  get(formData, 'performerDisplay') }
+                value={  get(this, 'data.form.performerDisplay') }
                 onChange={ this.changeState.bind(this, 'performerDisplay')}
                 floatingLabelFixed={true}
                 hintText={this.setHint('Chris Taub')}
@@ -379,43 +399,16 @@ export class ProcedureDetail extends React.Component {
             </Col>
             <Col md={2}>
               <TextField
-                id='performerReferenceInput'
-                ref='performerReference'
+                id='performerReferenceInput'                
                 name='performerReference'
                 floatingLabelText='Performer Reference'
-                value={  get(formData, 'performerReference') }
+                value={  get(this, 'data.form.performerReference') }
                 onChange={ this.changeState.bind(this, 'performerReference')}
                 hintText={this.setHint('Practitioner/77777')}
                 floatingLabelFixed={true}
                 fullWidth
                 /><br/>
             </Col>
-            <Col md={2}>
-              <TextField
-                id='performedDateInput'
-                ref='performedDate'
-                name='performedDate'
-                type='date'
-                floatingLabelText='Performed Date'
-                value={  get(formData, 'performedDate') }
-                onChange={ this.changeState.bind(this, 'performedDate')}
-                floatingLabelFixed={true}
-                fullWidth
-                /><br/>
-            </Col>
-            <Col md={2}>
-              <TextField
-                id='performedTimeInput'
-                ref='performedTime'
-                name='performedTime'
-                type='time'
-                floatingLabelText='Performed Date'
-                value={  get(formData, 'performedTime') }
-                onChange={ this.changeState.bind(this, 'performedTime')}
-                floatingLabelFixed={true}
-                fullWidth
-                /><br/>
-            </Col>      
             <Col md={2} >
               <br />
               <Toggle
@@ -425,16 +418,39 @@ export class ProcedureDetail extends React.Component {
                 style={styles.toggle}
               />
             </Col>      
+            {/* <Col md={2}>
+              <TextField
+                id='performedDateInput'                
+                name='performedDate'
+                type='date'
+                floatingLabelText='Performed Date'
+                value={  get(this, 'data.form.performedDate') }
+                onChange={ this.changeState.bind(this, 'performedDate')}
+                floatingLabelFixed={true}
+                fullWidth
+                /><br/>
+            </Col>    */}
+            {/* <Col md={2}>
+              <TextField
+                id='performedTimeInput'                
+                name='performedTime'
+                type='time'
+                floatingLabelText='Performed Date'
+                value={  get(this, 'data.form.performedTime') }
+                onChange={ this.changeState.bind(this, 'performedTime')}
+                floatingLabelFixed={true}
+                fullWidth
+                /><br/>
+            </Col>    */}
           </Row>
           <Row>
             <Col md={2}>
               <TextField
-                id='noteTimeInput'
-                ref='noteTime'
+                id='noteTimeInput'                
                 name='noteTime'
                 type='date'
                 floatingLabelText='Time'
-                value={  get(formData, 'noteTime') }
+                value={  get(this, 'data.form.noteTime') }
                 onChange={ this.changeState.bind(this, 'noteTime')}
                 floatingLabelFixed={true}
                 fullWidth
@@ -446,7 +462,7 @@ export class ProcedureDetail extends React.Component {
           { link }
 
           <br/>
-          { this.renderDatePicker(this.data.showDatePicker, get(this, 'data.procedure.performedDateTime') ) }
+          { this.renderDatePicker(this.data.showDatePicker, get(this, 'data.form') ) }
           <br/>
 
         </CardText>
@@ -523,6 +539,9 @@ export class ProcedureDetail extends React.Component {
       case "noteText":
         set(formData, 'noteText', textValue)
         break;
+      case "performedDateTime":
+        set(formData, 'performedDateTime', textValue)
+        break;   
     }
 
     if(process.env.NODE_ENV === "test") console.log("formData", formData);
@@ -577,7 +596,10 @@ export class ProcedureDetail extends React.Component {
       case "noteText":
         set(procedureData, 'notes[0].text', textValue)
         break;
-    }
+      case "performedDateTime":
+        set(procedureData, 'performedDateTime', textValue)
+        break;
+      }
     return procedureData;
   }
 
@@ -644,6 +666,10 @@ export class ProcedureDetail extends React.Component {
 
       if(process.env.NODE_ENV === "test") console.log("create a new procedure", fhirProcedureData);
 
+      if(get(fhirProcedureData, 'code.coding[0].display')){
+        fhirProcedureData.code.text = get(fhirProcedureData, 'code.coding[0].display');
+      }
+
       Procedures._collection.insert(fhirProcedureData, function(error, result) {
         if (error) {
           console.log("error", error);
@@ -661,7 +687,9 @@ export class ProcedureDetail extends React.Component {
   }
 
   handleCancelButton(){
-    Session.set('procedurePageTabIndex', 1);
+    if(this.props.onCancel){
+      this.props.onCancel();
+    }
   }
 
   handleDeleteButton(){
@@ -688,6 +716,7 @@ ProcedureDetail.propTypes = {
   procedure: PropTypes.oneOfType([PropTypes.object, PropTypes.bool]),
   showPatientInputs: PropTypes.bool,
   hideButtons: PropTypes.bool,
+  hideNotes: PropTypes.bool,
   showHints: PropTypes.bool,
   onInsert: PropTypes.func,
   onUpdate: PropTypes.func,

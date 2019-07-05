@@ -1,6 +1,6 @@
 import { CardText, CardTitle } from 'material-ui/Card';
 import {Tab, Tabs} from 'material-ui/Tabs';
-import { GlassCard, VerticalCanvas, Glass } from 'meteor/clinical:glass-ui';
+import { GlassCard, VerticalCanvas, FullPageCanvas, Glass } from 'meteor/clinical:glass-ui';
 
 import { Meteor } from 'meteor/meteor';
 import { Session } from 'meteor/session';
@@ -44,6 +44,24 @@ export class ProceduresPage extends React.Component {
 
     return data;
   }
+  onInsert(procedureId){
+    HipaaLogger.logEvent({eventType: "create", userId: Meteor.userId(), userName: Meteor.user().fullName(), collectionName: "Procedures", recordId: procedureId});
+    Session.set('procedurePageTabIndex', 1);
+    Session.set('selectedProcedureId', false);
+  }
+  onUpdate(procedureId){
+    HipaaLogger.logEvent({eventType: "update", userId: Meteor.userId(), userName: Meteor.user().fullName(), collectionName: "Procedures", recordId: procedureId});
+    Session.set('procedurePageTabIndex', 1);
+    Session.set('selectedProcedureId', false);
+}
+  onRemove(procedureId){
+    HipaaLogger.logEvent({eventType: "delete", userId: Meteor.userId(), userName: Meteor.user().fullName(), collectionName: "Procedures", recordId: procedureId});
+    Session.set('procedurePageTabIndex', 1);
+    Session.set('selectedProcedureId', false);
+  }
+  onCancel(){
+    Session.set('procedurePageTabIndex', 1);
+  }
 
   handleTabChange(index){
     Session.set('procedurePageTabIndex', index);
@@ -58,7 +76,7 @@ export class ProceduresPage extends React.Component {
     if(process.env.NODE_ENV === "test") console.log('In ProceduresPage render');
     return (
       <div id='proceduresPage'>
-        <VerticalCanvas>
+        <FullPageCanvas>
           <GlassCard height='auto'>
             <CardTitle title='Procedures' />
             <CardText>
@@ -69,11 +87,14 @@ export class ProceduresPage extends React.Component {
                   fhirVersion={ this.data.fhirVersion }
                   procedure={ this.data.selectedProcedure }
                   procedureId={ this.data.selectedProcedureId } 
+                  showDatePicker={true} 
+                  onInsert={ this.onInsert }
                 />
                </Tab>
                <Tab className="procedureListTab" label='Procedures' onActive={this.handleActive} style={this.data.style.tab} value={1}>
                 <ProceduresTable 
                   noDataMessagePadding={100}
+                  // hideIdentifier={true} 
                   displayDates={true} />
                </Tab>
                <Tab className="procedureDetailsTab" label='Detail' onActive={this.handleActive} style={this.data.style.tab} value={2}>
@@ -82,12 +103,17 @@ export class ProceduresPage extends React.Component {
                   showDatePicker={true} 
                   fhirVersion={ this.data.fhirVersion }
                   procedure={ this.data.selectedProcedure }
-                  procedureId={ this.data.selectedProcedureId } />  
+                  procedureId={ this.data.selectedProcedureId } 
+                  onInsert={ this.onInsert }
+                  onUpdate={ this.onUpdate }
+                  onRemove={ this.onRemove }
+                  onCancel={ this.onCancel }
+                  />  
                </Tab>
              </Tabs>
             </CardText>
           </GlassCard>
-        </VerticalCanvas>
+        </FullPageCanvas>
       </div>
     );
   }

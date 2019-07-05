@@ -66,7 +66,7 @@ export class ProceduresTable extends React.Component {
       return (
         <td className="toggle">
             <Checkbox
-              defaultCheckbox={true}
+              defaultChecked={true}
               //style={styles.toggle}
             />
           </td>
@@ -86,7 +86,7 @@ export class ProceduresTable extends React.Component {
       return (
         // <td className='date'>{ moment(performedDate).format('YYYY-MM-DD') }</td>
         // <td className='time'>{ moment(newDate).format('YYYY-MM-DD') }</td>
-        <td className='date'>{ performedDate }</td>
+        <td className='date' style={{width: '120px'}}>{ moment(performedDate).format('YYYY-MM-DD') }</td>
         // <td className='time'>{ performedTime }</td>
       );
     }
@@ -273,7 +273,7 @@ export class ProceduresTable extends React.Component {
           { this.renderSubject( newRow.subjectDisplay ) } 
           { this.renderPerformer(newRow.performerDisplay) }
           { this.renderBodySite(newRow.bodySiteDisplay) }
-          { this.renderDate(newRow.performedDate, newRow.performedTime) }
+          { this.renderDate(newRow.performedDateTime) }
           <td className='notesCount'>{ newRow.notesCount }</td>
         </tr>
       )
@@ -297,7 +297,7 @@ export class ProceduresTable extends React.Component {
             { this.renderSubjectHeader() }
             { this.renderPerformerHeader() }
             { this.renderBodySiteHeader() }
-            { this.renderDateHeader(this.data.displayDates) }
+            { this.renderDateHeader() }
             <th className='notesCount'>Notes</th>
           </tr>
         </thead>
