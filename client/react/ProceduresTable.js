@@ -91,6 +91,20 @@ export class ProceduresTable extends React.Component {
       );
     }
   }
+  renderDateEndHeader(){
+    if (!this.props.hidePerformedDateEnd) {
+      return (
+        <th className='performedDate'>End</th>
+      );
+    }
+  }
+  renderDateEnd(performedPeriodEnd ){
+    if (!this.props.hidePerformedDateEnd) {
+      return (
+        <td className='date' style={{width: '120px'}}>{ moment(performedPeriodEnd).format('YYYY-MM-DD') }</td>
+      );
+    }
+  }
   renderIdentifierHeader(){
     if (!this.props.hideIdentifier) {
       return (
@@ -211,7 +225,7 @@ export class ProceduresTable extends React.Component {
   renderSubjectHeader(){
     if (!this.props.hideSubject) {
       return (
-        <th className='subjectDisplay'>patient</th>
+        <th className='subjectDisplay'>Patient</th>
       );
     }
   }
@@ -219,6 +233,20 @@ export class ProceduresTable extends React.Component {
     if (!this.props.hideSubject) {
       return (
         <td className='subjectDisplay' style={{minWidth: '140px'}}>{ subject }</td>
+      );
+    }
+  }
+  renderSubjectReferenceHeader(){
+    if (!this.props.hideSubjectReference) {
+      return (
+        <th className='subjectReference'>Patient Reference</th>
+      );
+    }
+  }
+  renderSubjectReference(subjectReference ){
+    if (!this.props.hideSubjectReference) {
+      return (
+        <td className='subjectReference' style={{minWidth: '140px'}}>{ subjectReference }</td>
       );
     }
   }
@@ -242,11 +270,24 @@ export class ProceduresTable extends React.Component {
 
       newRow.performedDate = get(this.data.procedures[i], 'performedDateTime');      
       newRow.performedTime = get(this.data.procedures[i], 'performedTime');
-      newRow.subjectDisplay = get(this.data.procedures[i], 'subject.display');
-      newRow.subjectReference = get(this.data.procedures[i], 'subject.reference');
       newRow.performerDisplay = get(this.data.procedures[i], 'performer.display');
       newRow.performerReference = get(this.data.procedures[i], 'performer.reference');
       newRow.bodySiteDisplay = get(this.data.procedures[i], 'bodySite.display');
+
+      if(get(this.data.procedures[i], 'subject')){
+        newRow.subjectDisplay = get(this.data.procedures[i], 'subject.display');
+        newRow.subjectReference = get(this.data.procedures[i], 'subject.reference');  
+      } else if(get(this.data.procedures[i], 'patient')){
+        newRow.subjectDisplay = get(this.data.procedures[i], 'patient.display');
+        newRow.subjectReference = get(this.data.procedures[i], 'patient.reference');  
+      }
+
+      if(get(this.data.procedures[i], 'performedPeriod')){
+        newRow.performedDate = moment(get(this.data.procedures[i], 'performedPeriod.start')).format('YYYY-MM-DD');      
+        newRow.performedEnd = moment(get(this.data.procedures[i], 'performedPeriod.end')).format("YYYY-MM-DD");      
+      }
+
+      
 
       let notes = get(this.data.procedures[i], 'notes')
       if(notes && notes.length){
@@ -271,9 +312,11 @@ export class ProceduresTable extends React.Component {
           {/* <td className='performerDisplay' style={this.displayOnMobile()} >{ newRow.performerDisplay }</td>
           <td className='bodySiteDisplay' style={this.displayOnMobile()} >{ newRow.bodySiteDisplay }</td> */}
           { this.renderSubject( newRow.subjectDisplay ) } 
+          { this.renderSubjectReference( newRow.subjectReference ) } 
           { this.renderPerformer(newRow.performerDisplay) }
           { this.renderBodySite(newRow.bodySiteDisplay) }
           { this.renderDate(newRow.performedDateTime) }
+          { this.renderDateEnd(newRow.performedEnd) }
           <td className='notesCount'>{ newRow.notesCount }</td>
         </tr>
       )
@@ -295,9 +338,11 @@ export class ProceduresTable extends React.Component {
             <th className='bodySiteDisplay' style={this.displayOnMobile()} >Body Site</th> */}
 
             { this.renderSubjectHeader() }
+            { this.renderSubjectReferenceHeader() }
             { this.renderPerformerHeader() }
             { this.renderBodySiteHeader() }
             { this.renderDateHeader() }
+            { this.renderDateEndHeader() }
             <th className='notesCount'>Notes</th>
           </tr>
         </thead>
@@ -315,10 +360,12 @@ ProceduresTable.propTypes = {
   query: PropTypes.object,
   paginationLimit: PropTypes.number,
   hidePerformedDate: PropTypes.bool,
+  hidePerformedDateEnd: PropTypes.bool,
   hideIdentifier: PropTypes.bool,
   hideCheckboxes: PropTypes.bool,
   hideActionIcons: PropTypes.bool,
   hideSubject: PropTypes.bool,
+  hideSubjectReference: PropTypes.bool,
   hidePerformer: PropTypes.bool,
   hideBodySite: PropTypes.bool,
   enteredInError: PropTypes.bool
