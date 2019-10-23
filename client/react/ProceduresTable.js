@@ -9,10 +9,10 @@ import { moment } from 'meteor/momentjs:moment';
 import PropTypes from 'prop-types';
 
 import { FaTags, FaCode, FaPuzzlePiece, FaLock  } from 'react-icons/fa';
-import { GoTrashcan } from 'react-icons/go'
+import { GoTrashcan } from 'react-icons/go';
 
 export class ProceduresTable extends React.Component {
-
+ 
   getMeteorData() {
 
     // this should all be handled by props
@@ -157,14 +157,14 @@ export class ProceduresTable extends React.Component {
     }
   } 
   renderCategoryHeader(){
-    if (!this.props.hideCategory) {
+    if (this.props.displayCategory) {
       return (
         <th className="categoryDisplay">Category</th>
       );
     }
   }
   renderCategory(category ){
-    if (!this.props.hideCategory) {
+    if (this.props.displayCategory) {
       return (
         <td className='categoryDisplay'>{ category }</td>       );
     }
@@ -183,41 +183,28 @@ export class ProceduresTable extends React.Component {
       );
     }
   } 
-  renderCategoryHeader(){
-    if (!this.props.hideCategory) {
-      return (
-        <th className="categoryDisplay">Category</th>
-      );
-    }
-  }
-  renderCategory(category ){
-    if (!this.props.hideCategory) {
-      return (
-        <td className='categoryDisplay'>{ category }</td>       );
-    }
-  }
   renderPerformerHeader(){
-    if (!this.props.hideCategory) {
+    if (!this.props.hidePerformer) {
       return (
         <th className="performerDisplay">Performer</th>
       );
     }
   }
   renderPerformer(bodysite ){
-    if (!this.props.hideCategory) {
+    if (!this.props.hidePerformer) {
       return (
         <td className='performerDisplay'>{ bodysite }</td>       );
     }
   }
   renderBodySiteHeader(){
-    if (!this.props.hideCategory) {
+    if (!this.props.hideBodySite) {
       return (
         <th className="bodySiteDisplay">Body Site</th>
       );
     }
   }
   renderBodySite(bodySite ){
-    if (!this.props.hideCategory) {
+    if (!this.props.hideBodySite) {
       return (
         <td className='bodySiteDisplay'>{ bodySite }</td>       );
     }
@@ -250,6 +237,21 @@ export class ProceduresTable extends React.Component {
       );
     }
   }
+  renderNotes(notesCount){
+    if (this.props.displayNotes) {
+      return (
+        <td className='notesCount'>{ notesCount }</td>
+      );
+    }
+  }
+  renderNotesHeader(){
+    if (this.props.displayNotes) {
+      return (
+        <th className='notesCount'>Notes</th>
+      );
+    }
+  }
+
   rowClick(id){
     Session.set('proceduresUpsert', false);
     Session.set('selectedProcedureId', id);
@@ -306,44 +308,42 @@ export class ProceduresTable extends React.Component {
           { this.renderIdentifier(newRow.identifier ) }
           { this.renderCategory(newRow.categoryDisplay) }
           {/* <td className='categoryDisplay'>{ newRow.categoryDisplay }</td> */}
+          <td className='procedureCode' style={{whiteSpace: 'nowrap'}}>{ newRow.procedureCode }</td>
           <td className='procedureCodeDisplay'>{ newRow.procedureCodeDisplay }</td>
-          <td className='procedureCode'>{ newRow.procedureCode }</td>
-          {/* <td className='subjectDisplay' style={this.displayOnMobile()} >{ newRow.subjectDisplay }</td> */}
-          {/* <td className='performerDisplay' style={this.displayOnMobile()} >{ newRow.performerDisplay }</td>
-          <td className='bodySiteDisplay' style={this.displayOnMobile()} >{ newRow.bodySiteDisplay }</td> */}
           { this.renderSubject( newRow.subjectDisplay ) } 
           { this.renderSubjectReference( newRow.subjectReference ) } 
           { this.renderPerformer(newRow.performerDisplay) }
-          { this.renderBodySite(newRow.bodySiteDisplay) }
+          { this.renderBodySite() }
           { this.renderDate(newRow.performedDateTime) }
           { this.renderDateEnd(newRow.performedEnd) }
-          <td className='notesCount'>{ newRow.notesCount }</td>
+          { this.renderNotes(newRow.notesCount) }
         </tr>
       )
     }
 
     return(
-      <Table id='proceduresTable' hover >
+      <Table id="proceduresTable" hover >
         <thead>
           <tr>
             { this.renderCheckboxHeader() }
             { this.renderActionIconsHeader() }
             { this.renderIdentifierHeader() }
+            { this.renderDateHeader() }
+            { this.renderDateEndHeader() }
             { this.renderCategoryHeader() }
             {/* <th className='categoryDisplay'>Category</th> */}
-            <th className='procedureCodeDisplay'>Procedure</th>
             <th className='procedureCode'>Code</th>
+            <th className='procedureCodeDisplay'>Procedure</th>
             {/* <th className='subjectDisplay' style={this.displayOnMobile()} >Subject</th> */}
             {/* <th className='performerDisplay' style={this.displayOnMobile()} >Performer</th>
             <th className='bodySiteDisplay' style={this.displayOnMobile()} >Body Site</th> */}
+            
 
             { this.renderSubjectHeader() }
             { this.renderSubjectReferenceHeader() }
             { this.renderPerformerHeader() }
             { this.renderBodySiteHeader() }
-            { this.renderDateHeader() }
-            { this.renderDateEndHeader() }
-            <th className='notesCount'>Notes</th>
+            { this.renderNotesHeader() }
           </tr>
         </thead>
         <tbody>
@@ -359,6 +359,7 @@ ProceduresTable.propTypes = {
   data: PropTypes.array,
   query: PropTypes.object,
   paginationLimit: PropTypes.number,
+  displayCategory: PropTypes.bool,
   hidePerformedDate: PropTypes.bool,
   hidePerformedDateEnd: PropTypes.bool,
   hideIdentifier: PropTypes.bool,
@@ -368,6 +369,7 @@ ProceduresTable.propTypes = {
   hideSubjectReference: PropTypes.bool,
   hidePerformer: PropTypes.bool,
   hideBodySite: PropTypes.bool,
+  displayNotes: PropTypes.bool,
   enteredInError: PropTypes.bool
 };
 ReactMixin(ProceduresTable.prototype, ReactMeteorData);

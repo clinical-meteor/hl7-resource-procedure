@@ -76,7 +76,7 @@ export class ProceduresPage extends React.Component {
     if(process.env.NODE_ENV === "test") console.log('In ProceduresPage render');
     return (
       <div id='proceduresPage'>
-        <FullPageCanvas>
+        <FullPageCanvas demographicsHeight={220} >
           <GlassCard height='auto'>
             <CardTitle title='Procedures' />
             <CardText>
