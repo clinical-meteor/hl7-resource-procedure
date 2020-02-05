@@ -1,10 +1,20 @@
-import { CardActions, CardText, DatePicker, RaisedButton, TextField, Toggle } from 'material-ui';
-import { Row, Col } from 'react-bootstrap';
+import { 
+  Button,
+  CardHeader,
+  CardContent,
+  CardActions,
+  TextField,
+  Grid,
+  Select,
+  MenuItem,
+  DatePicker,
+  Toggle
+} from '@material-ui/core';
+
 
 import React from 'react';
 import { ReactMeteorData } from 'meteor/react-meteor-data';
 import ReactMixin from 'react-mixin';
-import { browserHistory } from 'react-router';
 import { get, set } from 'lodash';
 import PropTypes from 'prop-types';
 
@@ -31,7 +41,7 @@ const styles = {
   labelStyle: {
     color: 'red',
   },
-};
+}; 
 
 
 export class ProcedureDetail extends React.Component {
@@ -210,16 +220,17 @@ export class ProcedureDetail extends React.Component {
     }
 
     if (showDatePicker) {
-      return (
-        <DatePicker 
-          name='performedDateTime'
-          hintText="Performed Date/Time" 
-          container="inline" 
-          mode="landscape"
-          value={ datePickerValue ? datePickerValue : ''}    
-          onChange={ this.changeState.bind(this, 'performedDateTime')}      
-          />
-      );
+      return(<div></div>)
+      // return (
+      //   <DatePicker 
+      //     name='performedDateTime'
+      //     hintText="Performed Date/Time" 
+      //     container="inline" 
+      //     mode="landscape"
+      //     value={ datePickerValue ? datePickerValue : ''}    
+      //     onChange={ this.changeState.bind(this, 'performedDateTime')}      
+      //     />
+      // );
     }
   }
   setHint(text){
@@ -251,10 +262,10 @@ export class ProcedureDetail extends React.Component {
           <TextField
             id='noteTextInput'                
             name='noteText'
-            floatingLabelText='Note Text'
+            label='Note Text'
             value={  get(this, 'data.form.noteText', '') }
             onChange={ this.changeState.bind(this, 'noteText')}
-            floatingLabelFixed={true}
+            //floatingLabelFixed={true}
             hintText={this.setHint('Routine follow-up.  No complications.')}
             multiLine={true}          
             rows={5}
@@ -267,166 +278,158 @@ export class ProcedureDetail extends React.Component {
 
     return (
       <div id={this.props.id} className="procedureDetail">
-        <CardText>
-          <Row>
-            <Col md={4}>
-              <TextField
+        <CardContent>
+          
+        <Grid container spacing={3}>
+          <Grid item xs={6}>
+            <TextField
                 id='identifierInput'                
                 name='identifier'
-                floatingLabelText='Identifier'
+                label='Identifier'
                 value={  get(this, 'data.form.identifier') }
                 onChange={ this.changeState.bind(this, 'identifier')}
                 hintText={this.setHint('IR-28376481')}
-                floatingLabelFixed={true}
+                //floatingLabelFixed={true}
                 fullWidth
                 /><br/>
-            </Col>
-          </Row>
-          <Row>
-            <Col md={4}>
               <TextField
                 id='categoryDisplayInput'                
                 name='categoryDisplay'
-                floatingLabelText='Procedure Category'
+                label='Procedure Category'
                 value={  get(this, 'data.form.categoryDisplay') }
                 onChange={ this.changeState.bind(this, 'categoryDisplay')}
                 hintText={this.setHint('Interventional Radiology')}
-                floatingLabelFixed={true}
+                //floatingLabelFixed={true}
                 fullWidth
-                /><br/>
-            </Col>
-            <Col md={2}>
+              /><br/>
+
               <TextField
                 id='categoryCodeInput'                
                 name='categoryCode'
-                floatingLabelText='Category Code'
+                label='Category Code'
                 value={  get(this, 'data.form.categoryCode') }
                 onChange={ this.changeState.bind(this, 'categoryCode')}
                 hintText={this.setHint('240917005')}
-                floatingLabelFixed={true}
+                //floatingLabelFixed={true}
                 fullWidth
                 /><br/>
-            </Col>
-            <Col md={4}>
+
               <TextField
                 id='procedureCodeDisplayInput'                
                 name='procedureCodeDisplay'
-                floatingLabelText='Procedure'
+                label='Procedure'
                 value={  get(this, 'data.form.procedureCodeDisplay') }
                 onChange={ this.changeState.bind(this, 'procedureCodeDisplay')}
                 hintText={this.setHint('Biliary drainage intervention')}
-                floatingLabelFixed={true}
+                //floatingLabelFixed={true}
                 fullWidth
                 /><br/>
-            </Col>
-            <Col md={2}>
+
               <TextField
                 id='procedureCodeInput'                
                 name='procedureCode'
-                floatingLabelText='Procedure Code'
+                label='Procedure Code'
                 value={  get(this, 'data.form.procedureCode') }
                 onChange={ this.changeState.bind(this, 'procedureCode')}
                 hintText={this.setHint('277566006')}
-                floatingLabelFixed={true}
+                //floatingLabelFixed={true}
                 fullWidth
                 /><br/>
-            </Col>
-          </Row>
-          <Row>
-            <Col md={4}>
+
               <TextField
                 id='subjectDisplayInput'                
                 name='subjectDisplay'
-                floatingLabelText='Subject'
+                label='Subject'
                 value={  get(this, 'data.form.subjectDisplay') }
                 onChange={ this.changeState.bind(this, 'subjectDisplay')}
                 hintText={this.setHint('Jane Doe')}
-                floatingLabelFixed={true}
+                //floatingLabelFixed={true}
                 fullWidth
                 /><br/>
-            </Col>
-            <Col md={2}>
+
               <TextField
                 id='subjectReferenceInput'                
                 name='subjectReference'
-                floatingLabelText='Subject Reference'
+                label='Subject Reference'
                 value={  get(this, 'data.form.subjectReference') }
                 onChange={ this.changeState.bind(this, 'subjectReference')}
                 hintText={this.setHint('Patient/12345')}
-                floatingLabelFixed={true}
+                //floatingLabelFixed={true}
                 fullWidth
                 /><br/>
-            </Col>
 
-            <Col md={4}>
               <TextField
                 id='bodySiteDisplayInput'                
                 name='bodySiteDisplay'
-                floatingLabelText='Body Site'
+                label='Body Site'
                 value={  get(this, 'data.form.bodySiteDisplay') }
                 onChange={ this.changeState.bind(this, 'bodySiteDisplay')}
                 hintText={this.setHint('Billiary Ducts')}
-                floatingLabelFixed={true}
+                //floatingLabelFixed={true}
                 fullWidth
                 /><br/>
-            </Col>
-            <Col md={2}>
+
               <TextField
                 id='bodySiteReferenceInput'                
                 name='bodySiteReference'
-                floatingLabelText='Body Site Reference'
+                label='Body Site Reference'
                 value={  get(this, 'data.form.bodySiteReference') }
                 onChange={ this.changeState.bind(this, 'bodySiteReference')}
                 hintText={this.setHint('BodySite/222244')}
-                floatingLabelFixed={true}
+                //floatingLabelFixed={true}
                 fullWidth
                 /><br/>
-            </Col>
 
-          </Row>
-          <Row>
-            <Col md={4}>
               <TextField
                 id='performerDisplayInput'                
                 name='performerDisplay'
-                floatingLabelText='Performed By'
+                label='Performed By'
                 value={  get(this, 'data.form.performerDisplay') }
                 onChange={ this.changeState.bind(this, 'performerDisplay')}
-                floatingLabelFixed={true}
+                //floatingLabelFixed={true}
                 hintText={this.setHint('Chris Taub')}
                 fullWidth
                 /><br/>
-            </Col>
-            <Col md={2}>
+
               <TextField
                 id='performerReferenceInput'                
                 name='performerReference'
-                floatingLabelText='Performer Reference'
+                label='Performer Reference'
                 value={  get(this, 'data.form.performerReference') }
                 onChange={ this.changeState.bind(this, 'performerReference')}
                 hintText={this.setHint('Practitioner/77777')}
-                floatingLabelFixed={true}
+                //floatingLabelFixed={true}
                 fullWidth
                 /><br/>
-            </Col>
-            <Col md={2} >
-              <br />
+
               <Toggle
                 label="Not Performed"
                 labelPosition="right"
                 defaultToggled={false}
                 style={styles.toggle}
               />
-            </Col>      
+
+              <TextField
+                id='noteTimeInput'                
+                name='noteTime'
+                type='date'
+                label='Time'
+                value={  get(this, 'data.form.noteTime') }
+                onChange={ this.changeState.bind(this, 'noteTime')}
+                //floatingLabelFixed={true}
+                fullWidth
+                /><br/>
+          </Grid>
+          <Grid item xs={4}>
             {/* <Col md={2}>
               <TextField
                 id='performedDateInput'                
                 name='performedDate'
                 type='date'
-                floatingLabelText='Performed Date'
+                label='Performed Date'
                 value={  get(this, 'data.form.performedDate') }
                 onChange={ this.changeState.bind(this, 'performedDate')}
-                floatingLabelFixed={true}
+                //floatingLabelFixed={true}
                 fullWidth
                 /><br/>
             </Col>    */}
@@ -435,29 +438,16 @@ export class ProcedureDetail extends React.Component {
                 id='performedTimeInput'                
                 name='performedTime'
                 type='time'
-                floatingLabelText='Performed Date'
+                label='Performed Date'
                 value={  get(this, 'data.form.performedTime') }
                 onChange={ this.changeState.bind(this, 'performedTime')}
-                floatingLabelFixed={true}
+                //floatingLabelFixed={true}
                 fullWidth
                 /><br/>
             </Col>    */}
-          </Row>
-          <Row>
-            <Col md={2}>
-              <TextField
-                id='noteTimeInput'                
-                name='noteTime'
-                type='date'
-                floatingLabelText='Time'
-                value={  get(this, 'data.form.noteTime') }
-                onChange={ this.changeState.bind(this, 'noteTime')}
-                floatingLabelFixed={true}
-                fullWidth
-                /><br/>
-            </Col>
-          </Row>
-
+          </Grid>
+        </Grid>
+          
           { notes } 
           { link }
 
@@ -465,7 +455,7 @@ export class ProcedureDetail extends React.Component {
           { this.renderDatePicker(this.data.showDatePicker, get(this, 'data.form') ) }
           <br/>
 
-        </CardText>
+        </CardContent>
         <CardActions>
           { this.determineButtons(this.data.procedureId) }
         </CardActions>
@@ -480,13 +470,13 @@ export class ProcedureDetail extends React.Component {
       if (procedureId) {
         return (
           <div>
-            <RaisedButton id="updateProcedureButton" label="Save" primary={true} onClick={this.handleSaveButton.bind(this)} style={{marginRight: '20px'}}  />
-            <RaisedButton id="deleteProcedureButton" label="Delete" onClick={this.handleDeleteButton.bind(this)} />
+            <Button id="updateProcedureButton" primary={true} onClick={this.handleSaveButton.bind(this)} style={{marginRight: '20px'}}>Save</Button>
+            <Button id="deleteProcedureButton" onClick={this.handleDeleteButton.bind(this)} >Delete</Button>
           </div>
         );
       } else {
         return(
-          <RaisedButton id="saveProcedureButton" label="Save" primary={true} onClick={this.handleSaveButton.bind(this)} />
+          <Button id="saveProcedureButton" primary={true} onClick={this.handleSaveButton.bind(this)} >Save</Button>
         );
       }
     }
@@ -652,14 +642,14 @@ export class ProcedureDetail extends React.Component {
           if (error) {
             console.log("error", error);
 
-            Bert.alert(error.reason, 'danger');
+            // Bert.alert(error.reason, 'danger');
           }
           if (result) {
             HipaaLogger.logEvent({eventType: "update", userId: Meteor.userId(), userName: Meteor.user().fullName(), collectionName: "Procedures", recordId: self.state.procedureId });
             Session.set('procedurePageTabIndex', 1);
             Session.set('selectedProcedureId', false);
             Session.set('procedureUpsert', false);
-            Bert.alert('Procedure updated!', 'success');
+            // Bert.alert('Procedure updated!', 'success');
           }
         });
     } else {
@@ -673,14 +663,14 @@ export class ProcedureDetail extends React.Component {
       Procedures._collection.insert(fhirProcedureData, function(error, result) {
         if (error) {
           console.log("error", error);
-          Bert.alert(error.reason, 'danger');
+          // Bert.alert(error.reason, 'danger');
         }
         if (result) {
           HipaaLogger.logEvent({eventType: "create", userId: Meteor.userId(), userName: Meteor.user().fullName(), collectionName: "Procedures", recordId: self.state.procedureId });
           Session.set('procedurePageTabIndex', 1);
           Session.set('selectedProcedureId', false);
           Session.set('procedureUpsert', false);
-          Bert.alert('Procedure added!', 'success');
+          // Bert.alert('Procedure added!', 'success');
         }
       });
     }
@@ -696,13 +686,13 @@ export class ProcedureDetail extends React.Component {
     let self = this;
     Procedures._collection.remove({_id: this.state.procedureId}, function(error, result){
       if (error) {
-        Bert.alert(error.reason, 'danger');
+        // Bert.alert(error.reason, 'danger');
       }
       if (result) {
         HipaaLogger.logEvent({eventType: "delete", userId: Meteor.userId(), userName: Meteor.user().fullName(), collectionName: "Procedures", recordId: self.state.procedureId});
         Session.set('procedurePageTabIndex', 1);
         Session.set('selectedProcedureId', false);
-        Bert.alert('Procedure removed!', 'success');
+        // Bert.alert('Procedure removed!', 'success');
       }
     });
   }

@@ -1,146 +1,192 @@
-import { Card, CardActions, CardMedia, CardText, CardTitle, Checkbox } from 'material-ui';
 
-import React from 'react';
-import { ReactMeteorData } from 'meteor/react-meteor-data';
-import ReactMixin from 'react-mixin';
-import { Table } from 'react-bootstrap';
-import { get } from 'lodash';
-import { moment } from 'meteor/momentjs:moment';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
+
+import { 
+  Button,
+  Card,
+  Checkbox,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
+  TableFooter,
+  TablePagination,
+  IconButton,
+  FirstPageIcon,
+  KeyboardArrowLeft,
+  KeyboardArrowRight,
+  LastPageIcon
+} from '@material-ui/core';
+
+
+import moment from 'moment-es6'
+import _ from 'lodash';
+let get = _.get;
+let set = _.set;
+
+// import { ReactMeteorData } from 'meteor/react-meteor-data';
+// import ReactMixin from 'react-mixin';
 
 import { FaTags, FaCode, FaPuzzlePiece, FaLock  } from 'react-icons/fa';
 import { GoTrashcan } from 'react-icons/go';
 
-export class ProceduresTable extends React.Component {
- 
-  getMeteorData() {
+import { Meteor } from 'meteor/meteor';
+import { Session } from 'meteor/session';
 
-    // this should all be handled by props
-    // or a mixin!
-    let data = {
-      style: {
-        opacity: Session.get('globalOpacity')
-      },
-      selected: [],
-      procedures: [],
-      displayCheckbox: false,
-      displayDates: false
-    }
 
-    if(this.props.displayCheckboxs){
-      data.displayCheckbox = this.props.displayCheckboxs;
-    }
-    if(this.props.displayDates){
-      data.displayDates = this.props.displayDates;
-    }
-    if(this.props.data){
-      data.procedures = this.props.data;
-    } else {
-      if(Procedures.find().count() > 0){
-        data.procedures = Procedures.find().fetch();
-      }  
-    }
+//===========================================================================
+// THEMING
 
-    // if(get(Meteor, 'settings.public.logging') === "debug") console.log("ProceduresTable[data]", data);
-    return data;
+import { ThemeProvider, makeStyles } from '@material-ui/styles';
+const useStyles = makeStyles(theme => ({
+  button: {
+    background: theme.background,
+    border: 0,
+    borderRadius: 3,
+    boxShadow: '0 3px 5px 2px rgba(255, 105, 135, .3)',
+    color: theme.buttonText,
+    height: 48,
+    padding: '0 30px',
+  }
+}));
+
+// let styles = {
+//   hideOnPhone: {
+//     visibility: 'visible',
+//     display: 'table'
+//   },
+//   cellHideOnPhone: {
+//     visibility: 'visible',
+//     display: 'table',
+//     paddingTop: '16px',
+//     maxWidth: '120px'
+//   },
+//   cell: {
+//     paddingTop: '16px'
+//   }
+// }
+
+//===========================================================================
+// FLATTENING / MAPPING
+
+flattenProcedure = function(procedure, dateFormat){
+  let result = {
+    _id: '',
+    id: '',
+    meta: '',
+    identifier: '',
+    status: '',
+    categoryDisplay: '',
+    code: '',
+    codeDisplay: '',
+    subject: '',
+    subjectReference: '',
+    performerDisplay: '',
+    performedStart: '',
+    performedEnd: '',
+    notesCount: '',
+    bodySiteDisplay: ''
   };
-  displayOnMobile(width){
-    let style = {};
-    if(['iPhone'].includes(window.navigator.platform)){
-      style.display = "none";
-    }
-    if(width){
-      style.width = width;
-    }
-    return style;
-  }
-  renderCheckboxHeader(){
-    if (!this.props.hideCheckboxes) {
-      return (
-        <th className="toggle" style={{width: '60px'}} >Checkbox</th>
-      );
-    }
-  }
-  renderCheckbox(patientId ){
-    if (!this.props.hideCheckboxes) {
-      return (
-        <td className="toggle">
-            <Checkbox
-              defaultChecked={true}
-              //style={styles.toggle}
-            />
-          </td>
-      );
-    }
-  }
-  renderDateHeader(){
-    if (!this.props.hidePerformedDate) {
-      return (
-        <th className='performedDate'>Date</th>
-        // <th className='performedTime'>Time</th>
-      );
-    }
-  }
-  renderDate(performedDate, performedTime ){
-    if (!this.props.hidePerformedDate) {
-      return (
-        // <td className='date'>{ moment(performedDate).format('YYYY-MM-DD') }</td>
-        // <td className='time'>{ moment(newDate).format('YYYY-MM-DD') }</td>
-        <td className='date' style={{width: '120px'}}>{ moment(performedDate).format('YYYY-MM-DD') }</td>
-        // <td className='time'>{ performedTime }</td>
-      );
-    }
-  }
-  renderDateEndHeader(){
-    if (!this.props.hidePerformedDateEnd) {
-      return (
-        <th className='performedDate'>End</th>
-      );
-    }
-  }
-  renderDateEnd(performedPeriodEnd ){
-    if (!this.props.hidePerformedDateEnd) {
-      return (
-        <td className='date' style={{width: '120px'}}>{ moment(performedPeriodEnd).format('YYYY-MM-DD') }</td>
-      );
-    }
-  }
-  renderIdentifierHeader(){
-    if (!this.props.hideIdentifier) {
-      return (
-        <th className='identifier'>Identifier</th>
-      );
-    }
-  }
-  renderIdentifier(identifier ){
-    if (!this.props.hideIdentifier) {
-      return (
-        <td className='identifier'>{ identifier }</td>
-      );
-    }
-  } 
-  renderActionIconsHeader(){
-    if (!this.props.hideActionIcons) {
-      return (
-        <th className='actionIcons' style={{width: '100px'}}>Actions</th>
-      );
-    }
-  }
-  removeRecord(_id){
-    console.log('Remove procedure ', _id)
-    Procedures._collection.remove({_id: _id})
-  }
-  showSecurityDialog(procedure){
-    console.log('showSecurityDialog', procedure)
 
-    Session.set('securityDialogResourceJson', Procedures.findOne(get(procedure, '_id')));
-    Session.set('securityDialogResourceType', 'Procedure');
-    Session.set('securityDialogResourceId', get(procedure, '_id'));
-    Session.set('securityDialogOpen', true);
+  if(!dateFormat){
+    dateFormat = get(Meteor, "settings.public.defaults.dateFormat", "YYYY-MM-DD");
   }
-  renderActionIcons( procedure ){
-    if (!this.props.hideActionIcons) {
 
+  result._id =  get(procedure, 'id') ? get(procedure, 'id') : get(procedure, '_id');
+
+  result.id = get(procedure, 'id', '');
+  result.status = get(procedure, 'status', '');
+  result.categoryDisplay = get(procedure, 'category.coding[0].display', '');
+  result.identifier = get(procedure, 'identifier[0].value');
+  result.code = get(procedure, 'code.coding[0].code');
+  result.codeDisplay = get(procedure, 'code.coding[0].display');
+  result.categoryDisplay = get(procedure, 'category.coding[0].display')    
+
+  if(get(procedure, 'subject')){
+    result.subject = get(procedure, 'subject.display', '');
+    result.subjectReference = get(procedure, 'subject.reference', '');
+  } else if(get(procedure, 'patient')){
+    result.subject = get(procedure, 'patient.display', '');
+    result.subjectReference = get(procedure, 'patient.reference', '');
+  }
+
+  result.performedStart = get(procedure, 'performedDateTime');      
+  result.performerDisplay = get(procedure, 'performer.display');
+  result.performerReference = get(procedure, 'performer.reference');
+  result.bodySiteDisplay = get(procedure, 'bodySite.display');
+
+  if(get(procedure, 'performedPeriod')){
+    result.performedStart = moment(get(procedure, 'performedPeriod.start')).format(dateFormat);      
+    result.performedEnd = moment(get(procedure, 'performedPeriod.end')).format(dateFormat);      
+  }
+
+  let notes = get(procedure, 'notes')
+  if(notes && notes.length > 0){
+    result.notesCount = notes.length;
+  } else {
+    result.notesCount = 0;
+  }
+
+  return result;
+}
+
+
+function ProceduresTable(props){
+  logger.info('Rendering the ProceduresTable');
+  logger.verbose('clinical:hl7-resource-encounter.client.ProceduresTable');
+  logger.data('ProceduresTable.props', {data: props}, {source: "ProceduresTable.jsx"});
+
+  const classes = useStyles();
+
+  //---------------------------------------------------------------------
+  // Pagination
+
+  let rows = [];
+  let rowsPerPageToRender = 5;
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
+
+  if(props.rowsPerPage){
+    // if we receive an override as a prop, render that many rows
+    // best to use rowsPerPage with disablePagination
+    rowsPerPageToRender = props.rowsPerPage;
+  } else {
+    // otherwise default to the user selection
+    rowsPerPageToRender = rowsPerPage;
+  }
+
+  let paginationCount = 101;
+  if(props.count){
+    paginationCount = props.count;
+  } else {
+    paginationCount = rows.length;
+  }
+
+  //---------------------------------------------------------------------
+  // Helper Functions
+
+  function rowClick(id){
+    // logger.info('ProceduresTable.rowClick', id);
+
+    Session.set("selectedProcedureId", id);
+    Session.set('procedurePageTabIndex', 1);
+    Session.set('procedureDetailState', false);
+
+    if(props && (typeof props.onRowClick === "function")){
+      props.onRowClick(id);
+    }
+  }
+  function renderActionIconsHeader(){
+    if (!props.hideActionIcons) {
+      return (
+        <TableCell className='actionIcons' style={{width: '100px'}}>Actions</TableCell>
+      );
+    }
+  }
+  function renderActionIcons(procedure ){
+    if (!props.hideActionIcons) {
       let iconStyle = {
         marginLeft: '4px', 
         marginRight: '4px', 
@@ -149,228 +195,393 @@ export class ProceduresTable extends React.Component {
       }
 
       return (
-        <td className='actionIcons' style={{minWidth: '120px'}}>
-          <FaTags style={iconStyle} onClick={this.showSecurityDialog.bind(this, procedure)} />
-          <GoTrashcan style={iconStyle} onClick={this.removeRecord.bind(this, procedure._id)} />  
-        </td>
+        <TableCell className='actionIcons' style={{minWidth: '120px'}}>
+          <FaTags style={iconStyle} onClick={ onMetaClick.bind(procedure)} />
+          <GoTrashcan style={iconStyle} onClick={ removeRecord.bind(procedure._id)} />  
+        </TableCell>
       );
     }
   } 
-  renderCategoryHeader(){
-    if (this.props.displayCategory) {
-      return (
-        <th className="categoryDisplay">Category</th>
-      );
+  function onMetaClick(_id){
+    logger.info('Opening metadata for procedure: ' + _id)
+    if(props.onMetaClick){
+      props.onMetaClick(_id);
     }
   }
-  renderCategory(category ){
-    if (this.props.displayCategory) {
-      return (
-        <td className='categoryDisplay'>{ category }</td>       );
+  function removeRecord(_id){
+    logger.info('Remove procedure: ' + _id)
+    if(props.onRemoveRecord){
+      props.onRemoveRecord(_id);
     }
   }
-  renderIdentifierHeader(){
-    if (!this.props.hideIdentifier) {
-      return (
-        <th className='identifier'>Identifier</th>
-      );
-    }
-  }
-  renderIdentifier(identifier ){
-    if (!this.props.hideIdentifier) {
-      return (
-        <td className='identifier'>{ identifier }</td>
-      );
-    }
-  } 
-  renderPerformerHeader(){
-    if (!this.props.hidePerformer) {
-      return (
-        <th className="performerDisplay">Performer</th>
-      );
-    }
-  }
-  renderPerformer(bodysite ){
-    if (!this.props.hidePerformer) {
-      return (
-        <td className='performerDisplay'>{ bodysite }</td>       );
-    }
-  }
-  renderBodySiteHeader(){
-    if (!this.props.hideBodySite) {
-      return (
-        <th className="bodySiteDisplay">Body Site</th>
-      );
-    }
-  }
-  renderBodySite(bodySite ){
-    if (!this.props.hideBodySite) {
-      return (
-        <td className='bodySiteDisplay'>{ bodySite }</td>       );
-    }
-  }
-  renderSubjectHeader(){
-    if (!this.props.hideSubject) {
-      return (
-        <th className='subjectDisplay'>Patient</th>
-      );
-    }
-  }
-  renderSubject(subject ){
-    if (!this.props.hideSubject) {
-      return (
-        <td className='subjectDisplay' style={{minWidth: '140px'}}>{ subject }</td>
-      );
-    }
-  }
-  renderSubjectReferenceHeader(){
-    if (!this.props.hideSubjectReference) {
-      return (
-        <th className='subjectReference'>Patient Reference</th>
-      );
-    }
-  }
-  renderSubjectReference(subjectReference ){
-    if (!this.props.hideSubjectReference) {
-      return (
-        <td className='subjectReference' style={{minWidth: '140px'}}>{ subjectReference }</td>
-      );
-    }
-  }
-  renderNotes(notesCount){
-    if (this.props.displayNotes) {
-      return (
-        <td className='notesCount'>{ notesCount }</td>
-      );
-    }
-  }
-  renderNotesHeader(){
-    if (this.props.displayNotes) {
-      return (
-        <th className='notesCount'>Notes</th>
-      );
+  function onActionButtonClick(id){
+    if(typeof props.onActionButtonClick === "function"){
+      props.onActionButtonClick(id);
     }
   }
 
-  rowClick(id){
-    Session.set('proceduresUpsert', false);
-    Session.set('selectedProcedureId', id);
-    Session.set('procedurePageTabIndex', 2);
-  };
-  render () {
-    let tableRows = [];
-    for (var i = 0; i < this.data.procedures.length; i++) {
-      var newRow = {
-        identifier: '',
-        status: '',
-        code: ''        
-      };
-      newRow.identifier = get(this.data.procedures[i], 'identifier[0].value');
-      newRow.categoryDisplay = get(this.data.procedures[i], 'category.coding[0].display')    
-      newRow.procedureCode = get(this.data.procedures[i], 'code.coding[0].code');
-      newRow.procedureCodeDisplay = get(this.data.procedures[i], 'code.coding[0].display');
-
-      newRow.performedDate = get(this.data.procedures[i], 'performedDateTime');      
-      newRow.performedTime = get(this.data.procedures[i], 'performedTime');
-      newRow.performerDisplay = get(this.data.procedures[i], 'performer.display');
-      newRow.performerReference = get(this.data.procedures[i], 'performer.reference');
-      newRow.bodySiteDisplay = get(this.data.procedures[i], 'bodySite.display');
-
-      if(get(this.data.procedures[i], 'subject')){
-        newRow.subjectDisplay = get(this.data.procedures[i], 'subject.display');
-        newRow.subjectReference = get(this.data.procedures[i], 'subject.reference');  
-      } else if(get(this.data.procedures[i], 'patient')){
-        newRow.subjectDisplay = get(this.data.procedures[i], 'patient.display');
-        newRow.subjectReference = get(this.data.procedures[i], 'patient.reference');  
-      }
-
-      if(get(this.data.procedures[i], 'performedPeriod')){
-        newRow.performedDate = moment(get(this.data.procedures[i], 'performedPeriod.start')).format('YYYY-MM-DD');      
-        newRow.performedEnd = moment(get(this.data.procedures[i], 'performedPeriod.end')).format("YYYY-MM-DD");      
-      }
-
-      
-
-      let notes = get(this.data.procedures[i], 'notes')
-      if(notes && notes.length){
-        newRow.notesCount = notes.length;
+  function renderBarcode(id){
+    if (!props.hideBarcode) {
+      return (
+        <TableCell><span className="barcode helvetica">{id}</span></TableCell>
+      );
+    }
+  }
+  function renderBarcodeHeader(){
+    if (!props.hideBarcode) {
+      return (
+        <TableCell>System ID</TableCell>
+      );
+    }
+  }
+  function renderSubject(name, type){
+    if (!props.hideSubject) {
+      let result;
+      if(props.multiline){
+        result = <TableCell className='name'>
+          { name }<br/>
+          { type }        
+        </TableCell>;
       } else {
-        newRow.notesCount = 0;
+        result = <TableCell className='name'>{ name }</TableCell>;
       }
-
-      // console.log('newRow', newRow)
-
-      
-      tableRows.push(
-        <tr key={i} className="procedureRow" style={{cursor: "pointer"}} onClick={ this.rowClick.bind('this', this.data.procedures[i]._id)} >
-          { this.renderCheckbox() }
-          { this.renderActionIcons(this.data.procedures[i]) }
-          { this.renderIdentifier(newRow.identifier ) }
-          { this.renderCategory(newRow.categoryDisplay) }
-          {/* <td className='categoryDisplay'>{ newRow.categoryDisplay }</td> */}
-          <td className='procedureCode' style={{whiteSpace: 'nowrap'}}>{ newRow.procedureCode }</td>
-          <td className='procedureCodeDisplay'>{ newRow.procedureCodeDisplay }</td>
-          { this.renderSubject( newRow.subjectDisplay ) } 
-          { this.renderSubjectReference( newRow.subjectReference ) } 
-          { this.renderPerformer(newRow.performerDisplay) }
-          { this.renderBodySite() }
-          { this.renderDate(newRow.performedDateTime) }
-          { this.renderDateEnd(newRow.performedEnd) }
-          { this.renderNotes(newRow.notesCount) }
-        </tr>
-      )
+      return (result);
     }
-
-    return(
-      <Table id="proceduresTable" hover >
-        <thead>
-          <tr>
-            { this.renderCheckboxHeader() }
-            { this.renderActionIconsHeader() }
-            { this.renderIdentifierHeader() }
-            { this.renderDateHeader() }
-            { this.renderDateEndHeader() }
-            { this.renderCategoryHeader() }
-            {/* <th className='categoryDisplay'>Category</th> */}
-            <th className='procedureCode'>Code</th>
-            <th className='procedureCodeDisplay'>Procedure</th>
-            {/* <th className='subjectDisplay' style={this.displayOnMobile()} >Subject</th> */}
-            {/* <th className='performerDisplay' style={this.displayOnMobile()} >Performer</th>
-            <th className='bodySiteDisplay' style={this.displayOnMobile()} >Body Site</th> */}
-            
-
-            { this.renderSubjectHeader() }
-            { this.renderSubjectReferenceHeader() }
-            { this.renderPerformerHeader() }
-            { this.renderBodySiteHeader() }
-            { this.renderNotesHeader() }
-          </tr>
-        </thead>
-        <tbody>
-          { tableRows }
-        </tbody>
-      </Table>
-    );
   }
-}
+  function renderSubjectHeader(){
+    if (!props.hideSubject) {
+      return (
+        <TableCell className='name'>Subject</TableCell>
+      );
+    }
+  }
+  function renderSubjectReference(referenceString){
+    if (!props.hideSubjectReference) {
+      return (
+        <TableCell className='subjectReference'>{ referenceString }</TableCell>
+      );
+    }
+  }
+  function renderSubjectReferenceHeader(){
+    if (!props.hideSubjectReference) {
+      return (
+        <TableCell className='subjectReference'>Subject Reference</TableCell>
+      );
+    }
+  }
+  function renderStatus(valueString){
+    if (!props.hideStatus) {
+      return (
+        <TableCell className='status'>{ valueString }</TableCell>
+      );
+    }
+  }
+  function renderStatusHeader(){
+    if (!props.hideStatus) {
+      return (
+        <TableCell className='status'>Status</TableCell>
+      );
+    }
+  }
+  function renderCategoryHeader(){
+    if (!props.hideCategory) {
+      return (
+        <TableCell className='category'>Category</TableCell>
+      );
+    }
+  }
+  function renderCategory(category){
+    if (!props.hideCategory) {
+      return (
+        <TableCell className='category'>{ category }</TableCell>
+      );
+    }
+  }
+  function renderToggleHeader(){
+    if (!props.hideCheckboxes) {
+      return (
+        <TableCell className="toggle" style={{width: '60px'}} >Toggle</TableCell>
+      );
+    }
+  }
+  function renderToggle(){
+    if (!props.hideCheckboxes) {
+      return (
+        <TableCell className="toggle" style={{width: '60px'}}>
+            {/* <Checkbox
+              defaultChecked={true}
+            /> */}
+        </TableCell>
+      );
+    }
+  }
+  function renderPerformedStartHeader(){
+    if (!props.hidePerformedDate) {
+      return (
+        <TableCell className='performedStart' style={{minWidth: '140px'}}>Performed</TableCell>
+      );
+    }
+  }
+  function renderPerformedStart(performedStart){
+    if (!props.hidePerformedDate) {
+      return (
+        <TableCell className='performedStart' style={{minWidth: '140px'}}>{ performedStart }</TableCell>
+      );
+    }
+  }
+  function renderPerformedEndHeader(){
+    if (!props.hidePerformedDateEnd) {
+      return (
+        <TableCell className='performedEnd' style={{minWidth: '140px'}}>End</TableCell>
+      );
+    }
+  }
+  function renderPerformedEnd(performedEnd){
+    if (!props.hidePerformedDateEnd) {
+      return (
+        <TableCell className='performedEnd' style={{minWidth: '140px'}}>{ performedEnd }</TableCell>
+      );
+    }
+  }
+  function renderActionButtonHeader(){
+    if (props.showActionButton === true) {
+      return (
+        <TableCell className='ActionButton' >Action</TableCell>
+      );
+    }
+  }
+  function renderActionButton(patient){
+    if (props.showActionButton === true) {
+      return (
+        <TableCell className='ActionButton' >
+          <Button onClick={ onActionButtonClick.bind(this, patient[i]._id)}>{ get(props, "actionButtonLabel", "") }</Button>
+        </TableCell>
+      );
+    }
+  }
+  function renderIdentifier(identifier){
+    if (!props.hideIdentifier) {
+      return (
+        <TableCell className='identifier'>{ identifier }</TableCell>
+      );
+    }
+  }
+  function renderIdentifierHeader(){
+    if (!props.hideIdentifier) {
+      return (
+        <TableCell className='identifier'>Identifier</TableCell>
+      );
+    }
+  }
+  function renderCodeHeader(){
+    if (!props.hideCode) {
+      return (
+        <TableCell className='code'>Code</TableCell>
+      );
+    }
+  }
+  function renderCode(code){
+    if (!props.hideCode) {
+      return (
+        <TableCell className='code'>{ code }</TableCell>
+      );  
+    }
+  }
+  function renderCodeDisplayHeader(){
+    if (!props.hideCodeDisplay) {
+      return (
+        <TableCell className='codeDisplay'>Display</TableCell>
+      );
+    }
+  }
+  function renderCodeDisplay(text){
+    if (!props.hideCodeDisplay) {
+      return (
+        <TableCell className='codeDisplay'>{ text }</TableCell>
+      );  
+    }
+  }
+  function renderNotes(notesCount){
+    if (!props.hideNotes) {
+      return (
+        <TableCell className='notes'>{ notesCount }</TableCell>
+      );
+    }
+  }
+  function renderNotesHeader(){
+    if (!props.hideNotes) {
+      return (
+        <TableCell className='notes'>Notes</TableCell>
+      );
+    }
+  }
+  function renderPerformer(text){
+    if (!props.hidePerformer) {
+      return (
+        <TableCell className='performer'>{ text }</TableCell>
+      );
+    }
+  }
+  function renderPerformerHeader(){
+    if (!props.hidePerformer) {
+      return (
+        <TableCell className='performer'>Performer</TableCell>
+      );
+    }
+  }
+  function renderBodySite(text){
+    if (!props.hideBodySite) {
+      return (
+        <TableCell className='bodysite'>{ text }</TableCell>
+      );
+    }
+  }
+  function renderBodySiteHeader(){
+    if (!props.hideBodySite) {
+      return (
+        <TableCell className='bodysite'>Body Site</TableCell>
+      );
+    }
+  }
 
+
+  let tableRows = [];
+  let proceduresToRender = [];
+  let dateFormat = "YYYY-MM-DD";
+
+  if(props.showMinutes){
+    dateFormat = "YYYY-MM-DD hh:mm";
+  }
+  if(props.dateFormat){
+    dateFormat = props.dateFormat;
+  }
+
+  if(props.procedures){
+    if(props.procedures.length > 0){     
+      let count = 0;    
+      props.procedures.forEach(function(procedure){
+        if((count >= (page * rowsPerPageToRender)) && (count < (page + 1) * rowsPerPageToRender)){
+          proceduresToRender.push(flattenProcedure(procedure, dateFormat));
+        }
+        count++;
+      });  
+    }
+  }
+
+  if(proceduresToRender.length === 0){
+    logger.trace('ProceduresTable:  No procedures to render.');
+    // footer = <TableNoData noDataPadding={ props.noDataMessagePadding } />
+  } else {
+    for (var i = 0; i < proceduresToRender.length; i++) {
+      tableRows.push(
+        <TableRow className="procedureRow" key={i} onClick={ rowClick.bind(this, proceduresToRender[i]._id)} style={{cursor: 'pointer'}} hover="true" >            
+          { renderToggle() }
+          { renderActionIcons(proceduresToRender[i]) }
+          { renderIdentifier(proceduresToRender.identifier ) }
+          { renderStatus(proceduresToRender[i].status)}
+          { renderCategory(proceduresToRender[i].categoryDisplay)}
+          { renderCode(proceduresToRender[i].code)}
+          { renderCodeDisplay(proceduresToRender[i].codeDisplay)}          
+          { renderSubject(proceduresToRender[i].subject)}
+          { renderSubjectReference(proceduresToRender[i].subjectReference)}
+          { renderPerformer(proceduresToRender[i].performerDisplay)}
+          { renderBodySite()}
+          { renderPerformedStart(proceduresToRender[i].performedStart)}
+          { renderPerformedEnd(proceduresToRender[i].performedEnd)}
+          { renderNotes(proceduresToRender[i].notesCount)}
+          { renderBarcode(proceduresToRender[i]._id)}
+          { renderActionButton(proceduresToRender[i]) }
+        </TableRow>
+      );    
+    }
+  }
+
+
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  let paginationFooter;
+  if(!props.disablePagination){
+    paginationFooter = <TablePagination
+      component="div"
+      rowsPerPageOptions={[5, 10, 25, 100]}
+      colSpan={3}
+      count={paginationCount}
+      rowsPerPage={rowsPerPageToRender}
+      page={page}
+      onChangePage={handleChangePage}
+      style={{float: 'right', border: 'none'}}
+    />
+  }
+
+  return(
+    <div>
+      <Table id="proceduresTable" size="small" aria-label="a dense table" hover="true" >
+        <TableHead>
+          <TableRow>
+            { renderToggleHeader() }
+            { renderActionIconsHeader() }
+            { renderIdentifierHeader() }
+            { renderStatusHeader() }
+            { renderCategoryHeader() }
+            { renderCodeHeader() }
+            { renderCodeDisplayHeader() }
+            { renderSubjectHeader() }
+            { renderSubjectReferenceHeader() }
+            { renderPerformerHeader() }
+            { renderBodySiteHeader() }
+            { renderPerformedStartHeader() }
+            { renderPerformedEndHeader() }
+            { renderNotesHeader() }
+            { renderBarcodeHeader() }
+            { renderActionButtonHeader() }
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          { tableRows }
+        </TableBody>
+      </Table>
+      { paginationFooter }
+    </div>
+  );
+}
 
 ProceduresTable.propTypes = {
   data: PropTypes.array,
+  procedures: PropTypes.array,
   query: PropTypes.object,
   paginationLimit: PropTypes.number,
-  displayCategory: PropTypes.bool,
-  hidePerformedDate: PropTypes.bool,
-  hidePerformedDateEnd: PropTypes.bool,
-  hideIdentifier: PropTypes.bool,
+  disablePagination: PropTypes.bool,
+
   hideCheckboxes: PropTypes.bool,
+  hideIdentifier: PropTypes.bool,
   hideActionIcons: PropTypes.bool,
+  hideCategory: PropTypes.bool,
+  hideStatus: PropTypes.bool,
   hideSubject: PropTypes.bool,
   hideSubjectReference: PropTypes.bool,
+  hidePerformedDate: PropTypes.bool,
+  hidePerformedDateEnd: PropTypes.bool,
   hidePerformer: PropTypes.bool,
   hideBodySite: PropTypes.bool,
-  displayNotes: PropTypes.bool,
-  enteredInError: PropTypes.bool
+  hideNotes: PropTypes.bool,
+  hideCode: PropTypes.bool,
+  hideCodeDisplay: PropTypes.bool,
+  hideBarcode: PropTypes.bool,
+  filterEnteredInError: PropTypes.bool,
+
+  onCellClick: PropTypes.func,
+  onRowClick: PropTypes.func,
+  onMetaClick: PropTypes.func,
+  onRemoveRecord: PropTypes.func,
+  onActionButtonClick: PropTypes.func,
+  showActionButton: PropTypes.bool,
+  actionButtonLabel: PropTypes.string,
+
+  rowsPerPage: PropTypes.number,
+  dateFormat: PropTypes.string,
+  showMinutes: PropTypes.bool
 };
-ReactMixin(ProceduresTable.prototype, ReactMeteorData);
+
 export default ProceduresTable;
